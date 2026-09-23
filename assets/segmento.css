@@ -1,0 +1,249 @@
+/* =============================================
+   PÁGINAS DE SEGMENTO (imobiliaria, loteamentos, construcao, agronegocio)
+   Mesmas cores, tipografia e componentes da página inicial (index.html).
+============================================= */
+:root {
+  --teal: #0088AA;          /* Primária  · Pantone 2203 C */
+  --azul-escuro: #224F5A;   /* Secundária · Pantone 7477 C */
+  --branco: #FFFFFF;
+
+  --azul-profundo: #163840;
+  --teal-claro: #E6F3F7;
+  --cinza-texto: #4A5F65;
+  --linha: #D5E3E7;
+
+  --fonte: 'Gotham', 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --largura: 1180px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  font-family: var(--fonte);
+  font-weight: 400;
+  color: var(--azul-escuro);
+  background: var(--branco);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+.container { width: 100%; max-width: var(--largura); margin: 0 auto; padding: 0 24px; }
+
+.rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+.rotulo::before { content: ''; width: 28px; height: 2px; background: currentColor; }
+
+h1, h2, h3 { font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin-bottom: 24px; }
+h3 { font-size: 1.15rem; }
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fonte);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px 30px;
+  border: 2px solid var(--teal);
+  background: var(--teal);
+  color: var(--branco);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.botao:hover { background: var(--azul-escuro); border-color: var(--azul-escuro); }
+.botao--contorno { background: transparent; border-color: rgba(255,255,255,0.6); }
+.botao--contorno:hover { background: var(--branco); border-color: var(--branco); color: var(--azul-escuro); }
+.botao svg { width: 18px; height: 18px; }
+
+/* Logotipo */
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo__simbolo { height: 44px; width: auto; }
+.logo__nome { height: 15px; width: auto; }
+.logo .positiva { display: none; }
+
+/* Cabeçalho */
+.cabecalho { position: fixed; inset: 0 0 auto 0; z-index: 100; transition: background 0.3s, box-shadow 0.3s; }
+.cabecalho .container { display: flex; align-items: center; justify-content: space-between; height: 80px; }
+.cabecalho.rolado { background: var(--branco); box-shadow: 0 1px 0 var(--linha); }
+.cabecalho.rolado .logo .positiva, .cabecalho.aberto .logo .positiva { display: block; }
+.cabecalho.rolado .logo .negativa, .cabecalho.aberto .logo .negativa { display: none; }
+
+.menu { display: flex; gap: 36px; list-style: none; }
+.menu a {
+  text-decoration: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  transition: color 0.2s;
+}
+.menu a:hover { color: var(--branco); }
+.cabecalho.rolado .menu a { color: var(--azul-escuro); }
+.cabecalho.rolado .menu a:hover { color: var(--teal); }
+
+.menu-botao { display: none; background: none; border: 0; width: 44px; height: 44px; cursor: pointer; color: var(--branco); }
+.cabecalho.rolado .menu-botao { color: var(--azul-escuro); }
+.menu-botao span { display: block; width: 24px; height: 2px; margin: 5px auto; background: currentColor; transition: transform 0.25s, opacity 0.25s; }
+
+/* Abertura do segmento */
+.abertura {
+  position: relative;
+  color: var(--branco);
+  background: linear-gradient(135deg, rgba(22,56,64,0.96) 0%, rgba(34,79,90,0.9) 55%, rgba(0,136,170,0.84) 100%), var(--azul-escuro);
+  overflow: hidden;
+}
+/* Padrão diagonal derivado do traço do "S" do símbolo, igual ao da página inicial */
+.abertura::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(-55deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 44px);
+  mask-image: linear-gradient(to left, #000 0%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 70%);
+  pointer-events: none;
+}
+.abertura .container { position: relative; z-index: 1; padding-top: 150px; padding-bottom: 90px; }
+.abertura .rotulo { color: rgba(255,255,255,0.9); }
+.abertura .rotulo a { text-decoration: none; }
+.abertura .rotulo a:hover { color: var(--branco); }
+.abertura__marca { line-height: 1; margin-bottom: 28px; }
+.abertura__marca b { display: block; font-weight: 700; font-size: clamp(2.4rem, 6vw, 4.2rem); letter-spacing: 0.06em; }
+.abertura__marca span { display: block; font-weight: 300; font-size: clamp(1.5rem, 3.8vw, 2.7rem); margin-top: 6px; }
+.abertura p { font-size: clamp(1rem, 1.6vw, 1.15rem); max-width: 58ch; color: rgba(255,255,255,0.85); margin-bottom: 40px; }
+.abertura__acoes { display: flex; flex-wrap: wrap; gap: 16px; }
+
+.secao { padding: clamp(72px, 9vw, 120px) 0; }
+.secao--clara { background: var(--teal-claro); }
+
+/* Apresentação: imagem + texto */
+.apresentacao { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(40px, 6vw, 88px); align-items: center; }
+.apresentacao__texto p { color: var(--cinza-texto); margin-bottom: 18px; }
+.apresentacao__texto p:last-child { margin-bottom: 0; }
+
+/*
+  IMAGEM DO SEGMENTO
+  Para usar uma foto real, salve-a em assets/segmentos/ com o nome indicado no HTML
+  (ex.: assets/segmentos/imobiliaria.jpg, proporção 4:3). Enquanto a foto não existir,
+  aparece o painel da marca com o ícone do segmento.
+*/
+.imagem {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,0.9);
+  background-color: var(--azul-escuro);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.imagem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(-55deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 36px);
+}
+.imagem svg { position: relative; width: 34%; height: auto; opacity: 0.9; }
+.imagem.com-foto::before, .imagem.com-foto svg { display: none; }
+.imagem--agro { background-color: #5E4728; }
+
+/* Destaques */
+.destaques { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--linha); border: 1px solid var(--linha); margin-top: 48px; }
+.destaque { background: var(--branco); padding: 36px 30px; }
+.destaque__num { display: block; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.2em; color: var(--teal); margin-bottom: 22px; }
+.destaque h3 { margin-bottom: 10px; }
+.destaque p { font-size: 0.94rem; color: var(--cinza-texto); }
+
+/* Complemento (ex.: residencial na Imobiliária) */
+.complemento { display: flex; gap: 24px; align-items: start; margin-top: 32px; padding: 28px 30px; border-left: 3px solid var(--teal); background: var(--branco); }
+.complemento h3 { margin-bottom: 6px; }
+.complemento p { font-size: 0.95rem; color: var(--cinza-texto); }
+
+/* Etapas */
+.etapas { list-style: none; counter-reset: etapa; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 48px; }
+.etapas li { counter-increment: etapa; padding-top: 22px; border-top: 2px solid var(--teal); }
+.etapas li::before { content: counter(etapa, decimal-leading-zero); display: block; font-weight: 900; font-size: 2rem; line-height: 1; color: var(--teal); margin-bottom: 16px; }
+.etapas h3 { margin-bottom: 8px; }
+.etapas p { font-size: 0.95rem; color: var(--cinza-texto); }
+
+/* Chamada final */
+.chamada { background: var(--azul-escuro); color: var(--branco); text-align: center; }
+.chamada h2 { max-width: 22ch; margin-left: auto; margin-right: auto; }
+.chamada p { color: rgba(255,255,255,0.82); max-width: 52ch; margin: 0 auto 36px; }
+
+/* Outros segmentos */
+.outros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+.outros a {
+  display: block;
+  padding: 26px 28px;
+  border: 1px solid var(--linha);
+  text-decoration: none;
+  line-height: 1;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.outros a:hover { border-color: var(--teal); transform: translateY(-2px); }
+.outros b { display: block; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.06em; }
+.outros span { display: block; margin-top: 4px; }
+.outros small { display: block; margin-top: 18px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); }
+
+/* Rodapé */
+.rodape { background: var(--azul-profundo); color: rgba(255,255,255,0.65); padding: 56px 0 36px; font-size: 0.86rem; }
+.rodape__topo { display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.rodape__tagline { font-weight: 300; font-size: 1.05rem; letter-spacing: 0.04em; color: var(--branco); }
+.rodape__base { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 24px; font-size: 0.78rem; font-weight: 300; }
+
+/* WhatsApp flutuante */
+.whatsapp-flutuante {
+  position: fixed; right: 20px; bottom: 20px; z-index: 90;
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--teal); color: var(--branco);
+  box-shadow: 0 8px 24px rgba(22,56,64,0.3);
+  transition: transform 0.2s, background 0.2s;
+}
+.whatsapp-flutuante:hover { transform: scale(1.06); background: var(--azul-escuro); }
+.whatsapp-flutuante svg { width: 28px; height: 28px; }
+
+/* Responsivo */
+@media (max-width: 960px) {
+  .apresentacao { grid-template-columns: 1fr; }
+  .destaques, .etapas, .outros { grid-template-columns: 1fr; }
+  .etapas { gap: 32px; }
+}
+@media (max-width: 760px) {
+  .container { padding: 0 16px; }
+  .menu-botao { display: block; }
+  .menu {
+    position: fixed; inset: 80px 0 auto 0;
+    flex-direction: column; gap: 0;
+    background: var(--branco);
+    box-shadow: 0 12px 24px rgba(22,56,64,0.12);
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .menu a { display: block; padding: 18px 16px; border-top: 1px solid var(--linha); color: var(--azul-escuro); }
+  .cabecalho.aberto { background: var(--branco); }
+  .cabecalho.aberto .menu-botao { color: var(--azul-escuro); }
+  .cabecalho.aberto .menu { max-height: 400px; }
+  .cabecalho.aberto .menu-botao span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .cabecalho.aberto .menu-botao span:nth-child(2) { opacity: 0; }
+  .cabecalho.aberto .menu-botao span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .abertura .container { padding-top: 120px; padding-bottom: 64px; }
+  .destaque { padding: 28px 24px; }
+  .complemento { padding: 22px 20px; }
+}
