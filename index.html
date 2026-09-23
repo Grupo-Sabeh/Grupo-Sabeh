@@ -218,7 +218,8 @@
     .hero .container {
       position: relative;
       z-index: 1;
-      padding-top: 80px;
+      padding-top: 120px;
+      padding-bottom: 120px;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
@@ -242,7 +243,11 @@
 
     .hero__rolar {
       position: absolute;
-      bottom: 32px;
+      bottom: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1;
@@ -252,6 +257,12 @@
       text-transform: uppercase;
       color: rgba(255,255,255,0.6);
       text-decoration: none;
+    }
+    .hero__rolar::after {
+      content: '';
+      width: 1px;
+      height: 28px;
+      background: linear-gradient(rgba(255,255,255,0.6), transparent);
     }
 
     /* =============================================
@@ -270,11 +281,22 @@
 
     .numeros {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1.6fr 1fr 1fr;
+      align-items: end;
       margin-top: 64px;
       border-top: 1px solid var(--linha);
     }
     .numeros div { padding: 32px 24px 0 0; }
+    .numeros .numeros__destaque strong {
+      font-size: clamp(4rem, 9vw, 6.5rem);
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+    .numeros .numeros__destaque span {
+      font-weight: 400;
+      font-size: 1.05rem;
+      color: var(--azul-escuro);
+    }
     .numeros strong {
       display: block;
       font-weight: 900;
@@ -638,6 +660,7 @@
       .formulario { padding: 24px; }
       .segmento { padding: 28px; }
       .numeros { grid-template-columns: repeat(2, 1fr); }
+      .numeros .numeros__destaque { grid-column: 1 / -1; }
       .numeros div { padding: 24px 12px 24px 0; border-bottom: 1px solid var(--linha); }
       .contato__lista li { grid-template-columns: 1fr; gap: 4px; }
       .hero__rolar { display: none; }
@@ -728,8 +751,7 @@
         </div>
 
         <div class="numeros revelar">
-          <div><strong>20+</strong><span>Anos de patrimônio construído</span></div>
-          <div><strong>2</strong><span>Gerações à frente do negócio</span></div>
+          <div class="numeros__destaque"><strong>20+</strong><span>Mais de 20 anos construindo patrimônio em Assis e região</span></div>
           <div><strong>4</strong><span>Frentes de atuação</span></div>
           <div><strong>100%</strong><span>Portfólio próprio</span></div>
         </div>
