@@ -81,13 +81,22 @@
     }
 
     .rotulo {
-      display: inline-block;
-      font-weight: 300;
-      font-size: 0.78rem;
-      letter-spacing: 0.28em;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--teal);
       margin-bottom: 20px;
+    }
+
+    .rotulo::before {
+      content: '';
+      width: 28px;
+      height: 2px;
+      background: currentColor;
     }
 
     h1, h2, h3 { font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
@@ -226,7 +235,7 @@
       gap: 64px;
     }
     .hero__logo { width: clamp(220px, 24vw, 320px); height: auto; opacity: 0.95; }
-    .hero .rotulo { color: rgba(255,255,255,0.75); }
+    .hero .rotulo { color: rgba(255,255,255,0.9); }
     .hero h1 {
       font-size: clamp(2.4rem, 6.4vw, 5rem);
       max-width: 14ch;
@@ -281,35 +290,28 @@
 
     .numeros {
       display: grid;
-      grid-template-columns: 1.6fr 1fr 1fr;
-      align-items: end;
+      grid-template-columns: repeat(3, 1fr);
       margin-top: 64px;
       border-top: 1px solid var(--linha);
+      border-bottom: 1px solid var(--linha);
     }
-    .numeros div { padding: 32px 24px 0 0; }
-    .numeros .numeros__destaque strong {
-      font-size: clamp(4rem, 9vw, 6.5rem);
-      letter-spacing: -0.03em;
-      margin-bottom: 12px;
+    .numeros div {
+      padding: 36px 24px;
+      text-align: center;
     }
-    .numeros .numeros__destaque span {
-      font-weight: 400;
-      font-size: 1.05rem;
-      color: var(--azul-escuro);
-    }
+    .numeros div + div { border-left: 1px solid var(--linha); }
     .numeros strong {
       display: block;
       font-weight: 900;
-      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
       line-height: 1;
       color: var(--teal);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .numeros span {
-      font-weight: 300;
-      font-size: 0.85rem;
-      letter-spacing: 0.04em;
-      color: var(--cinza-texto);
+      font-weight: 400;
+      font-size: 0.95rem;
+      color: var(--azul-escuro);
     }
 
     .valores {
@@ -328,8 +330,8 @@
       padding: 40px 32px;
     }
     .valor__num {
-      font-weight: 300;
-      font-size: 0.78rem;
+      font-weight: 700;
+      font-size: 0.85rem;
       letter-spacing: 0.2em;
       color: var(--teal);
       margin-bottom: 28px;
@@ -434,7 +436,7 @@
       position: relative;
       overflow: hidden;
     }
-    .manifesto .rotulo { color: rgba(255,255,255,0.6); }
+    .manifesto .rotulo { color: #7FCBDD; }
     .manifesto__grade {
       display: grid;
       grid-template-columns: 1fr 1.3fr;
@@ -462,11 +464,11 @@
       margin-top: 44px;
       padding-top: 32px;
       border-top: 1px solid rgba(255,255,255,0.15);
-      font-weight: 300;
-      font-size: 0.82rem;
-      letter-spacing: 0.24em;
+      font-weight: 700;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.55);
+      color: var(--branco);
     }
 
     /* =============================================
@@ -489,9 +491,9 @@
       border-bottom: 1px solid var(--linha);
     }
     .contato__lista small {
-      font-weight: 300;
-      font-size: 0.74rem;
-      letter-spacing: 0.2em;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--teal);
       padding-top: 3px;
@@ -591,9 +593,9 @@
     }
     .formulario label { display: grid; gap: 8px; }
     .formulario label span {
-      font-weight: 300;
-      font-size: 0.74rem;
-      letter-spacing: 0.2em;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--azul-escuro);
     }
@@ -659,9 +661,8 @@
       .segmentos__grade, .valores__grade, .diferenciais { grid-template-columns: 1fr; }
       .formulario { padding: 24px; }
       .segmento { padding: 28px; }
-      .numeros { grid-template-columns: repeat(2, 1fr); }
-      .numeros .numeros__destaque { grid-column: 1 / -1; }
-      .numeros div { padding: 24px 12px 24px 0; border-bottom: 1px solid var(--linha); }
+      .numeros div { padding: 24px 8px; }
+      .numeros span { font-size: 0.8rem; }
       .contato__lista li { grid-template-columns: 1fr; gap: 4px; }
       .hero__rolar { display: none; }
       .hero__logo { display: none; }
@@ -751,7 +752,7 @@
         </div>
 
         <div class="numeros revelar">
-          <div class="numeros__destaque"><strong>20+</strong><span>Mais de 20 anos construindo patrimônio em Assis e região</span></div>
+          <div><strong>20+</strong><span>Anos de patrimônio</span></div>
           <div><strong>4</strong><span>Frentes de atuação</span></div>
           <div><strong>100%</strong><span>Portfólio próprio</span></div>
         </div>
