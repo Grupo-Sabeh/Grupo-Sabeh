@@ -547,12 +547,16 @@
       font-weight: 300;
     }
 
-    /* Botão flutuante de WhatsApp (canal principal de atendimento) */
-    .whatsapp-flutuante {
+    /* Botões flutuantes de e-mail e WhatsApp (canais principais de atendimento) */
+    .flutuantes {
       position: fixed;
       right: 20px;
       bottom: 20px;
       z-index: 90;
+      display: flex;
+      gap: 12px;
+    }
+    .whatsapp-flutuante {
       width: 58px;
       height: 58px;
       border-radius: 50%;
@@ -565,6 +569,47 @@
     }
     .whatsapp-flutuante:hover { transform: scale(1.06); background: var(--azul-escuro); }
     .whatsapp-flutuante svg { width: 28px; height: 28px; }
+    .whatsapp-flutuante--email { background: var(--azul-escuro); }
+    .whatsapp-flutuante--email:hover { background: var(--teal); }
+    .whatsapp-flutuante--email svg { width: 26px; height: 26px; }
+
+    /* Contatos rápidos na abertura */
+    .hero__contato {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 28px;
+      margin-top: 32px;
+      font-size: 0.95rem;
+    }
+    .hero__contato a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+    .hero__contato a:hover { color: var(--branco); }
+    .hero__contato svg { width: 18px; height: 18px; flex: none; }
+
+    /* Localização */
+    .local { background: var(--teal-claro); }
+    .local__grade {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: clamp(32px, 5vw, 64px);
+      align-items: center;
+    }
+    .local__texto p { color: var(--cinza-texto); margin-bottom: 28px; }
+    .local__endereco { font-weight: 700; font-size: 1.1rem; color: var(--azul-escuro); margin-bottom: 28px; line-height: 1.5; }
+    .local__mapa {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: var(--linha);
+      border: 1px solid var(--linha);
+    }
+    .local__mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .rodape__contato a { text-decoration: none; }
+    .rodape__contato a:hover { color: var(--branco); }
 
     /* Animação de entrada */
     .revelar { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
@@ -626,7 +671,7 @@
     ============================================= */
     @media (max-width: 960px) {
       .valores__grade { grid-template-columns: repeat(2, 1fr); }
-      .sobre__grade, .manifesto__grade, .contato__grade { grid-template-columns: 1fr; }
+      .sobre__grade, .manifesto__grade, .contato__grade, .local__grade { grid-template-columns: 1fr; }
       .manifesto__titulo { position: static; }
       .segmentos__topo { flex-direction: column; align-items: start; }
     }
@@ -666,12 +711,14 @@
       .contato__lista li { grid-template-columns: 1fr; gap: 4px; }
       .hero__rolar { display: none; }
       .hero__logo { display: none; }
+      .rodape { padding-bottom: 110px; }
     }
   </style>
 </head>
 <body>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="icone-email" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M3 5.5h18v13H3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="m3.5 6 8.5 7 8.5-7"/></symbol>
     <symbol id="icone-whatsapp" viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35M12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.4 9.4 0 0 1-1.44-5.01c0-5.2 4.23-9.43 9.44-9.43 2.52 0 4.89.98 6.67 2.77a9.37 9.37 0 0 1 2.76 6.67c0 5.2-4.24 9.43-9.44 9.43M20.1 3.9A11.3 11.3 0 0 0 12.05.57C5.77.57.66 5.68.66 11.95c0 2 .52 3.96 1.52 5.69L.57 23.5l6-1.57a11.4 11.4 0 0 0 5.47 1.4h.01c6.27 0 11.38-5.11 11.39-11.38 0-3.04-1.18-5.9-3.34-8.05"/></symbol>
   </svg>
 
@@ -689,6 +736,7 @@
         <ul class="menu" id="menu">
           <li><a href="#sobre">Sobre</a></li>
           <li><a href="#segmentos">Segmentos</a></li>
+          <li><a href="#localizacao">Localização</a></li>
           <li><a href="#contato">Contato</a></li>
         </ul>
       </nav>
@@ -717,6 +765,16 @@
             Falar no WhatsApp
           </a>
           <a href="#segmentos" class="botao botao--contorno">Conheça os segmentos</a>
+        </div>
+        <div class="hero__contato">
+          <a href="mailto:imoveis@gruposabeh.com.br">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icone-email"/></svg>
+            imoveis@gruposabeh.com.br
+          </a>
+          <a href="#localizacao">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            Av. Rui Barbosa, 444 · Assis-SP
+          </a>
         </div>
         </div>
         <img class="hero__logo" src="assets/logo-vertical-branco.png" alt="" width="1002" height="914">
@@ -904,7 +962,23 @@
       </div>
     </section>
 
-    <!-- ============ 5 · CONTATO ============ -->
+    <!-- ============ 5 · LOCALIZAÇÃO ============ -->
+    <section class="secao local" id="localizacao">
+      <div class="container local__grade">
+        <div class="local__texto revelar">
+          <span class="rotulo">Localização</span>
+          <h2>Venha conversar com a gente.</h2>
+          <p>Nosso escritório fica em Assis-SP. Se preferir, marque um horário pelo WhatsApp ou por e-mail.</p>
+          <p class="local__endereco">Avenida Rui Barbosa, 444<br>Assis · SP</p>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Avenida+Rui+Barbosa+444+Assis+SP" class="botao" target="_blank" rel="noopener">Como chegar</a>
+        </div>
+        <div class="local__mapa revelar">
+          <iframe src="https://www.google.com/maps?q=Avenida+Rui+Barbosa,+444,+Assis+-+SP&amp;output=embed" title="Mapa: Grupo Sabeh, Avenida Rui Barbosa, 444, Assis-SP" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6 · CONTATO ============ -->
     <section class="secao" id="contato">
       <div class="container">
         <div class="contato__grade">
@@ -918,6 +992,7 @@
 
             <ul class="contato__lista">
               <li><small>WhatsApp</small><a href="https://wa.me/5518996691107" target="_blank" rel="noopener">(18) 99669-1107</a></li>
+              <li><small>E-mail</small><a href="mailto:imoveis@gruposabeh.com.br">imoveis@gruposabeh.com.br</a></li>
               <li><small>Escritório</small><a href="https://www.google.com/maps/search/?api=1&amp;query=Avenida+Rui+Barbosa+444+Assis+SP" target="_blank" rel="noopener">Avenida Rui Barbosa, 444<br>Assis · SP</a></li>
               <li><small>Instagram</small><a href="https://instagram.com/gruposabeh" target="_blank" rel="noopener">@gruposabeh</a></li>
             </ul>
@@ -991,15 +1066,20 @@
         </div>
       </div>
       <div class="rodape__base">
-        <span>Grupo Sabeh é o nome fantasia da Hebas Holding · CNPJ 05.939.875/0001-77<br>Avenida Rui Barbosa, 444 · Assis-SP</span>
+        <span class="rodape__contato">Grupo Sabeh é o nome fantasia da Hebas Holding · CNPJ 05.939.875/0001-77<br>Avenida Rui Barbosa, 444 · Assis-SP<br><a href="mailto:imoveis@gruposabeh.com.br">imoveis@gruposabeh.com.br</a> · <a href="https://wa.me/5518996691107" target="_blank" rel="noopener">(18) 99669-1107</a></span>
         <span>© <span id="ano">2026</span> Grupo Sabeh. Todos os direitos reservados.</span>
       </div>
     </div>
   </footer>
 
-  <a href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh." class="whatsapp-flutuante" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
-  </a>
+  <div class="flutuantes">
+    <a href="mailto:imoveis@gruposabeh.com.br" class="whatsapp-flutuante whatsapp-flutuante--email" aria-label="Enviar e-mail">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icone-email"/></svg>
+    </a>
+    <a href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh." class="whatsapp-flutuante" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
+    </a>
+  </div>
 
   <script>
     // Cabeçalho muda de transparente para branco ao rolar

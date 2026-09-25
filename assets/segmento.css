@@ -207,9 +207,9 @@ h3 { font-size: 1.15rem; }
 .rodape__tagline { font-weight: 300; font-size: 1.05rem; letter-spacing: 0.04em; color: var(--branco); }
 .rodape__base { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 24px; font-size: 0.78rem; font-weight: 300; }
 
-/* WhatsApp flutuante */
+/* Botões flutuantes de e-mail e WhatsApp */
+.flutuantes { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; gap: 12px; }
 .whatsapp-flutuante {
-  position: fixed; right: 20px; bottom: 20px; z-index: 90;
   width: 58px; height: 58px; border-radius: 50%;
   display: grid; place-items: center;
   background: var(--teal); color: var(--branco);
@@ -218,6 +218,19 @@ h3 { font-size: 1.15rem; }
 }
 .whatsapp-flutuante:hover { transform: scale(1.06); background: var(--azul-escuro); }
 .whatsapp-flutuante svg { width: 28px; height: 28px; }
+.whatsapp-flutuante--email { background: var(--azul-escuro); }
+.whatsapp-flutuante--email:hover { background: var(--teal); }
+.whatsapp-flutuante--email svg { width: 26px; height: 26px; }
+
+/* E-mail na abertura e na chamada final */
+.abertura__contato { margin-top: 28px; font-size: 0.95rem; }
+.abertura__contato a { display: inline-flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.85); text-decoration: none; }
+.abertura__contato a:hover { color: var(--branco); }
+.abertura__contato svg, .chamada__acoes svg { width: 18px; height: 18px; flex: none; }
+.chamada__acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.chamada .botao--contorno { text-transform: none; letter-spacing: 0.02em; }
+.rodape__contato a { text-decoration: none; }
+.rodape__contato a:hover { color: var(--branco); }
 
 /* Responsivo */
 @media (max-width: 960px) {
@@ -246,4 +259,5 @@ h3 { font-size: 1.15rem; }
   .abertura .container { padding-top: 120px; padding-bottom: 64px; }
   .destaque { padding: 28px 24px; }
   .complemento { padding: 22px 20px; }
+  .rodape { padding-bottom: 110px; }
 }
