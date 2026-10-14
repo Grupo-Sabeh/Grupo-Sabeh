@@ -51,6 +51,10 @@
   .escuro .traco { background: var(--teal); }
   .escuro .segmentos { color: #7fd0e4; }
   .escuro .site { color: rgba(255,255,255,.6); }
+  .escuro .nome-pessoa { color: #fff; }
+  .escuro .cargo { color: #7fd0e4; }
+  .escuro .contatos { color: rgba(255,255,255,.92); }
+  .escuro .contatos svg { stroke: #7fd0e4; }
 
   /* Claro */
   .claro { background: linear-gradient(100deg, #ffffff 0%, #f3f9fb 55%, var(--teal-claro) 100%); color: var(--azul-escuro); }
@@ -70,7 +74,7 @@
     <div class="site">gruposabeh.com.br</div>
   </div>
   <div class="texto pessoal">
-    <div class="marca"><img class="simb" src="../../assets/simbolo.png"><img class="nome" src="../../assets/nome.png"></div>
+    <div class="marca"><img class="simb" id="pSimb" src="../../assets/simbolo.png"><img class="nome" id="pLogoNome" src="../../assets/nome.png"></div>
     <h2 class="nome-pessoa" id="pNome">Rodrigo Sabeh</h2>
     <div class="cargo"><span id="pCargo">Proprietário</span> <i>·</i> Grupo Sabeh</div>
     <div class="traco"></div>
@@ -98,7 +102,14 @@ const el = (tag, attrs, parent = svg) => {
 const pilula = (cx, cy, w, h, attrs) =>
   el('rect', { x: cx - w/2, y: cy - h/2, width: w, height: h, rx: w/2, ry: w/2, fill: 'none', ...attrs });
 
-if (v === 'a') {
+// Capa pessoal escura: ?v=pessoal-escuro (ou pessoal-escuro-fundo, só fundo + logo)
+const pessoalEscuro = v.startsWith('pessoal-escuro');
+if (pessoalEscuro) {
+  capa.classList.add('modo-pessoal');
+  if (v.endsWith('-fundo')) capa.classList.add('so-fundo');
+  pSimb.src = '../../assets/simbolo-branco.png'; pLogoNome.src = '../../assets/nome-branco.png';
+}
+if (v === 'a' || pessoalEscuro) {
   // CONTORNO — anéis concêntricos do símbolo se expandindo + o corte diagonal do "S"
   capa.classList.add('escuro');
   simb.src = '../../assets/simbolo-branco.png'; nome.src = '../../assets/nome-branco.png';
