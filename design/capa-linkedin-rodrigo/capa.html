@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0088AA;
+    --azul-escuro: #224F5A;
+    --azul-profundo: #163840;
+    --teal-claro: #E6F3F7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1584px; height: 396px; overflow: hidden; font-family: 'Montserrat', sans-serif; }
+  .capa { position: relative; width: 1584px; height: 396px; overflow: hidden; }
+  svg.fundo { position: absolute; inset: 0; }
+
+  .texto {
+    position: absolute; right: 96px; top: 50%; transform: translateY(-50%);
+    text-align: right; display: flex; flex-direction: column; align-items: flex-end;
+  }
+  .marca { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+  .marca .simb { height: 46px; }
+  .marca .nome { height: 15px; }
+  h1 { font-weight: 300; font-size: 40px; line-height: 1.12; letter-spacing: -0.01em; }
+  h1 b { font-weight: 800; display: block; }
+  .traco { width: 64px; height: 3px; margin: 24px 0 18px; }
+  .segmentos { font-weight: 600; font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; }
+  .segmentos i { font-style: normal; opacity: .55; margin: 0 8px; }
+  .site { margin-top: 8px; font-size: 13px; letter-spacing: 0.12em; font-weight: 400; }
+
+  /* Escuro */
+  .escuro { background: radial-gradient(120% 160% at 80% 30%, #1d4a55 0%, var(--azul-profundo) 55%, #0f2a31 100%); color: #fff; }
+  .escuro .traco { background: var(--teal); }
+  .escuro .segmentos { color: #7fd0e4; }
+  .escuro .site { color: rgba(255,255,255,.6); }
+
+  /* Claro */
+  .claro { background: linear-gradient(100deg, #ffffff 0%, #f3f9fb 55%, var(--teal-claro) 100%); color: var(--azul-escuro); }
+  .claro .traco { background: var(--teal); }
+  .claro .segmentos { color: var(--teal); }
+  .claro .site { color: #4A5F65; }
+</style>
+</head>
+<body>
+<div class="capa" id="capa">
+  <svg class="fundo" id="fundo" width="1584" height="396" viewBox="0 0 1584 396"></svg>
+  <div class="texto">
+    <div class="marca"><img class="simb" id="simb"><img class="nome" id="nome"></div>
+    <h1>Nunca foi vitrine.<b>Sempre foi resultado.</b></h1>
+    <div class="traco"></div>
+    <div class="segmentos">Imóveis<i>·</i>Loteamentos<i>·</i>Construção<i>·</i>Agronegócio</div>
+    <div class="site">gruposabeh.com.br</div>
+  </div>
+</div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'a';
+const capa = document.getElementById('capa');
+const svg = document.getElementById('fundo');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent = svg) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e); return e;
+};
+// Pílula (estádio) do símbolo: proporção ~ 488 x 707
+const pilula = (cx, cy, w, h, attrs) =>
+  el('rect', { x: cx - w/2, y: cy - h/2, width: w, height: h, rx: w/2, ry: w/2, fill: 'none', ...attrs });
+
+if (v === 'a') {
+  // CONTORNO — anéis concêntricos do símbolo se expandindo + o corte diagonal do "S"
+  capa.classList.add('escuro');
+  simb.src = 'simbolo-branco.png'; nome.src = 'nome-branco.png';
+  const cx = 470, cy = 198;
+  for (let i = 0; i < 14; i++) {
+    const w = 150 + i * 62, h = w * 1.45;
+    pilula(cx, cy, w, h, { stroke: '#0088AA', 'stroke-width': i % 3 === 0 ? 2.2 : 1, opacity: Math.max(0.08, 0.55 - i * 0.035) });
+  }
+  // Diagonal 45° do S atravessando a capa
+  const g = el('linearGradient', { id: 'diag', x1: 0, y1: 0, x2: 1, y2: 0 }, el('defs', {}));
+  el('stop', { offset: 0, 'stop-color': '#0088AA', 'stop-opacity': 0 }, g);
+  el('stop', { offset: .45, 'stop-color': '#0088AA', 'stop-opacity': .55 }, g);
+  el('stop', { offset: 1, 'stop-color': '#0088AA', 'stop-opacity': 0 }, g);
+  el('polygon', { points: `${cx-260},-40 ${cx-200},-40 ${cx+260},420 ${cx+200},420`, fill: 'url(#diag)', opacity: .5 });
+  // Símbolo sólido no centro dos anéis
+  el('image', { href: 'simbolo.png', x: cx - 52, y: cy - 75, width: 104, height: 151, opacity: .95 });
+}
+
+if (v === 'b') {
+  // TERRITÓRIO — curvas de nível (terra/agro) + grade de lotes (loteamentos/construção)
+  capa.classList.add('escuro');
+  simb.src = 'simbolo-branco.png'; nome.src = 'nome-branco.png';
+  const defs = el('defs', {});
+  const m = el('linearGradient', { id: 'fade', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+  el('stop', { offset: 0, 'stop-color': '#fff', 'stop-opacity': 1 }, m);
+  el('stop', { offset: .55, 'stop-color': '#fff', 'stop-opacity': .7 }, m);
+  el('stop', { offset: .8, 'stop-color': '#fff', 'stop-opacity': .12 }, m);
+  const mask = el('mask', { id: 'm' }, defs);
+  el('rect', { width: 1584, height: 396, fill: 'url(#fade)' }, mask);
+  const grp = el('g', { mask: 'url(#m)' });
+  // Grade de lotes
+  for (let x = 0; x <= 1584; x += 44) el('line', { x1: x, y1: 0, x2: x, y2: 396, stroke: '#7fd0e4', 'stroke-width': .5, opacity: .12 }, grp);
+  for (let y = 0; y <= 396; y += 44) el('line', { x1: 0, y1: y, x2: 1584, y2: y, stroke: '#7fd0e4', 'stroke-width': .5, opacity: .12 }, grp);
+  // Curvas de nível: anéis irregulares concêntricos
+  const centros = [[330, 230, 22], [860, 40, 14]];
+  for (const [cx, cy, n] of centros) {
+    for (let i = 1; i <= n; i++) {
+      let d = '';
+      for (let a = 0; a <= 360; a += 4) {
+        const t = a * Math.PI / 180;
+        const r = i * 24 + 10 * Math.sin(3 * t + i * .35) + 6 * Math.cos(5 * t - i * .2) + 4 * Math.sin(2 * t + cx);
+        const x = cx + r * Math.cos(t) * 1.5, y = cy + r * Math.sin(t);
+        d += (a ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+      el('path', { d: d + 'Z', fill: 'none', stroke: '#0088AA', 'stroke-width': i % 5 === 0 ? 2 : 1, opacity: i % 5 === 0 ? .75 : .45 }, grp);
+    }
+  }
+  // Marcos de lote (pontos nos cruzamentos)
+  [[396,132],[572,264],[220,88],[704,176]].forEach(([x,y]) => {
+    el('circle', { cx: x, cy: y, r: 4, fill: '#0088AA' }, grp);
+    el('circle', { cx: x, cy: y, r: 10, fill: 'none', stroke: '#0088AA', opacity: .6 }, grp);
+  });
+}
+
+if (v === 'c') {
+  // CLARO — símbolo gigante recortado + faixa diagonal
+  capa.classList.add('claro');
+  simb.src = 'simbolo.png'; nome.src = 'nome.png';
+  const s = 1.35, w = 488 * s, h = 707 * s;
+  el('image', { href: 'simbolo.png', x: -90, y: -250, width: w, height: h, opacity: .14 });
+  el('polygon', { points: '300,0 380,0 720,396 640,396', fill: '#0088AA', opacity: .9 });
+  el('polygon', { points: '400,0 416,0 756,396 740,396', fill: '#224F5A', opacity: .9 });
+  for (let i = 0; i < 4; i++) pilula(150, 198, 380 + i * 70, (380 + i * 70) * 1.45, { stroke: '#0088AA', 'stroke-width': 1, opacity: .18 });
+}
+</script>
+</body>
+</html>
