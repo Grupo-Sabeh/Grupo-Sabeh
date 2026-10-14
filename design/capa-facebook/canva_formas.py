@@ -23,7 +23,7 @@ ICONES = {
     "Construção sob demanda": "M6 58 H58 M10 58 V28 H32 V58 M16 36 H26 M16 46 H26 M42 58 V8 M42 8 H60 M42 15 L49 8 M56 8 V20",
     "Loteamentos": "M6 12 H58 V56 H6 Z M32 12 V56 M6 34 H58 M2 8 L10 16 M10 8 L2 16",
     "Agronegócio": "M6 58 H58 M32 58 V26 M32 40 C22 40 15 32 15 22 C25 22 32 30 32 40 M32 32 C42 32 49 24 49 14 C39 14 32 22 32 32",
-    "Imobiliário": "M6 30 L32 8 L58 30 M12 25 V58 H52 V25 M26 58 V42 H38 V58",
+    "Imóveis": "M6 30 L32 8 L58 30 M12 25 V58 H52 V25 M26 58 V42 H38 V58",
 }
 
 ops = [{"type": "delete_element", "locator_id": f"{P}-LBPbr9dJrKpGm4fn"},
@@ -40,14 +40,13 @@ ops.append(img(SIMB, "Símbolo Grupo Sabeh", 1240, 375, 120, 174, 0.95))
 ops.append(img(SIMB_B, "Símbolo Grupo Sabeh", 110, 190, 38.7, 56))
 ops.append(img(NOME_B, "Grupo Sabeh", 164, 211, 174.3, 16))
 ops.append(forma(110, 452, 64, 3, "M0 0 H64 V3 H0 Z", color=TEAL, opacity=1))
-# Quatro frentes: ícone + SABEH (forte) + segmento (subordinado)
+# Quatro frentes: ícone + nome da frente (sem "SABEH", a pedido do cliente)
 for n, (nome, path) in enumerate(ICONES.items()):
     x = 110 + n * 185
     ops.append({**forma(x, 486, 56, 56, path, stroke_color=CLARO, stroke_weight=2.5, opacity=1), "view_box_width": 64, "view_box_height": 64})
 for n, nome in enumerate(ICONES):
     x = 110 + n * 185
-    ops.append(texto("SABEH", x, 556, 170))
-    ops.append(texto(nome, x, 576, 170))
+    ops.append(texto(nome, x, 556, 170))
 ops.append(texto("Fale com a gente:  WhatsApp (18) 99669-1107   ·   (18) 3322-7266", 110, 672, 900))
 ops.append({"type": "update_title", "title": "Capa Facebook Grupo Sabeh - Escura"})
 print(json.dumps(ops, ensure_ascii=False))
