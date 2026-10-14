@@ -42,6 +42,7 @@
   .cargo i { font-style: normal; opacity: .5; margin: 0 6px; }
   .pessoal .traco { margin: 26px 0 22px; }
   .contatos { display: flex; gap: 34px; font-size: 17px; font-weight: 500; color: var(--azul-escuro); }
+  .contatos b { font-weight: inherit; }
   .contatos span { display: inline-flex; align-items: center; gap: 10px; }
   .contatos svg { width: 20px; height: 20px; fill: none; stroke: var(--teal); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 
@@ -70,17 +71,21 @@
   </div>
   <div class="texto pessoal">
     <div class="marca"><img class="simb" src="../../assets/simbolo.png"><img class="nome" src="../../assets/nome.png"></div>
-    <h2 class="nome-pessoa">Rodrigo Sabeh</h2>
-    <div class="cargo">Proprietário <i>·</i> Grupo Sabeh</div>
+    <h2 class="nome-pessoa" id="pNome">Rodrigo Sabeh</h2>
+    <div class="cargo"><span id="pCargo">Proprietário</span> <i>·</i> Grupo Sabeh</div>
     <div class="traco"></div>
     <div class="contatos">
-      <span><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg>rodrigo@gruposabeh.com.br</span>
-      <span><svg viewBox="0 0 24 24"><path d="M5 3.5h3.2l1.6 4.2-2.2 1.5a11 11 0 0 0 5.2 5.2l1.5-2.2 4.2 1.6V17a3 3 0 0 1-3 3A15.5 15.5 0 0 1 2 6.5a3 3 0 0 1 3-3z"/></svg>(18) 99601-2000</span>
+      <span><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg><b id="pEmail">rodrigo@gruposabeh.com.br</b></span>
+      <span><svg viewBox="0 0 24 24"><path d="M5 3.5h3.2l1.6 4.2-2.2 1.5a11 11 0 0 0 5.2 5.2l1.5-2.2 4.2 1.6V17a3 3 0 0 1-3 3A15.5 15.5 0 0 1 2 6.5a3 3 0 0 1 3-3z"/></svg><b id="pTel">(18) 99601-2000</b></span>
     </div>
   </div>
 </div>
 <script>
-const v = new URLSearchParams(location.search).get('v') || 'a';
+const q = new URLSearchParams(location.search);
+const v = q.get('v') || 'a';
+// Dados da pessoa (capa pessoal): ?v=rodrigo&nome=...&cargo=...&email=...&tel=...
+for (const [id, k] of [['pNome','nome'],['pCargo','cargo'],['pEmail','email'],['pTel','tel']])
+  if (q.get(k)) document.getElementById(id).textContent = q.get(k);
 const capa = document.getElementById('capa');
 const svg = document.getElementById('fundo');
 const NS = 'http://www.w3.org/2000/svg';
