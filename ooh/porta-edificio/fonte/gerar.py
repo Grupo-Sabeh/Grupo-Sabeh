@@ -21,6 +21,7 @@ SEGURANCA = 50          # mm — nada importante perto da borda
 LOGO_TOPO_DO_PISO = 1800  # topo do símbolo a 1,80 m do piso (leitura na altura dos olhos)
 MACANETA_DO_PISO = 930
 SIM = simbolo()  # 486 x 705 (unidades px do PNG original)
+TEXTO_VIVO = False      # True: textos de contato como <text> (editáveis no Canva); logo continua em curvas
 
 
 def nome(base, cap, largura, c, x0):
@@ -46,6 +47,10 @@ def lockup_vertical(cx, topo, largura, c):
 def linha_centro(partes, cx, base, cap):
     """partes: [(texto, peso, cor, tracking)] concatenadas e centralizadas em cx."""
     tam = cap / cap_height(500)
+    if TEXTO_VIVO:
+        spans = ''.join(f'<tspan font-weight="{p}" fill="{cor}" letter-spacing="{tr / 1000 * tam:.3f}">{t.replace(" ", "&#160;")}</tspan>'
+                        for t, p, cor, tr in partes)
+        return [f'<text x="{cx}" y="{base}" text-anchor="middle" font-family="Montserrat" font-size="{tam:.3f}">{spans}</text>']
     ws = [medir(t, p, tam, tr) + (tr / 1000 * tam if i < len(partes) - 1 else 0)
           for i, (t, p, _, tr) in enumerate(partes)]
     x = cx - sum(ws) / 2; out = []
@@ -121,12 +126,25 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--folha', type=medida, default=(1000, 2200), help='largura x altura em mm (ex.: 1000x2200)')
     ap.add_argument('--bandeira', type=medida, default=(1040, 360), help='largura x altura em mm (ex.: 1040x360)')
+    ap.add_argument('--canva', action='store_true', help='gera só PDFs com textos editáveis em ../canva')
     a = ap.parse_args()
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
     imp, prev = os.path.join(base, 'impressao'), os.path.join(base, 'previa')
     os.makedirs(imp, exist_ok=True); os.makedirs(prev, exist_ok=True)
     (fw, fh), (bw, bh) = a.folha, a.bandeira
     from render import run
+    if a.canva:
+        TEXTO_VIVO = True
+        dest = os.path.join(base, 'canva'); os.makedirs(dest, exist_ok=True)
+        jobs = []
+        for cor in CORES:
+            for nomearq, svg in ((f'folha-{fw // 10}x{fh // 10}cm_{cor}', folha(cor, fw, fh)),
+                                 (f'bandeira-{bw // 10}x{bh // 10}cm_{cor}', bandeira(cor, bw, bh))):
+                p = os.path.join(dest, nomearq + '_editavel.svg'); open(p, 'w').write(svg)
+                jobs.append((p, p.replace('.svg', '.pdf'), 0))
+        run(jobs)
+        for p, _, _ in jobs: os.remove(p)
+        raise SystemExit('ok → ' + dest)
     from mockup import mockup
     jobs = []
     for cor in CORES:
