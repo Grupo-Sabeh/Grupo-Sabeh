@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/segmento.css">
+  <link rel="stylesheet" href="assets/menu.css">
 </head>
 <body>
 
@@ -40,16 +41,49 @@
 
       <nav aria-label="Menu principal">
         <ul class="menu" id="menu">
-          <li><a href="index.html#sobre">Sobre</a></li>
-          <li><a href="index.html#segmentos">Segmentos</a></li>
+          <li><a href="index.html#imoveis">Imóveis</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
           <li><a href="index.html#localizacao">Localização</a></li>
           <li><a href="index.html#contato">Contato</a></li>
         </ul>
       </nav>
 
-      <button class="menu-botao" id="menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
+      <button class="menu-botao" id="menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="painel">
         <span></span><span></span><span></span>
       </button>
+    </div>
+
+    <!-- Painel do ☰: segmentos (no celular, também as abas principais) -->
+    <div class="painel" id="painel" hidden>
+      <div class="container painel__grade">
+        <ul class="painel__abas">
+            <li><a href="index.html#imoveis">Imóveis</a></li>
+            <li><a href="sobre.html">Sobre</a></li>
+            <li><a href="index.html#localizacao">Localização</a></li>
+            <li><a href="index.html#contato">Contato</a></li>
+        </ul>
+        <nav class="painel__segmentos" aria-label="Segmentos">
+          <p class="painel__titulo">Segmentos</p>
+          <ul>
+              <li><a href="imoveis.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/></svg></span>
+                <span>Imóveis</span>
+              </a></li>
+              <li><a href="construcao.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M9 28V6h2v22"/><path d="M5 6h22l-4 4"/><path d="M23 10v5"/><path d="M16 28V17h11v11"/><path d="M3 28h26"/></svg></span>
+                <span>Construção sob demanda</span>
+              </a></li>
+              <li><a href="loteamentos.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/></svg></span>
+                <span>Loteamentos</span>
+              </a></li>
+              <li><a href="agronegocio.html" aria-current="page">
+                <span class="painel__icone painel__icone--agro"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/></svg></span>
+                <span>Agronegócio</span>
+              </a></li>
+          </ul>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -58,7 +92,7 @@
     <!-- ============ ABERTURA ============ -->
     <section class="abertura">
       <div class="container">
-        <span class="rotulo"><a href="index.html#segmentos">Segmentos de atuação</a></span>
+        <span class="rotulo"><a href="sobre.html#segmentos">Segmentos de atuação</a></span>
         <h1 class="abertura__marca"><b>SABEH</b><span>Agronegócio</span></h1>
         <p>Arrendamento de terras rurais próprias para empresas do setor agro, com contratos de longo prazo e segurança jurídica.</p>
         <div class="abertura__acoes">
@@ -66,7 +100,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
             Consultar disponibilidade
           </a>
-          <a href="index.html#segmentos" class="botao botao--contorno">Ver todos os segmentos</a>
+          <a href="sobre.html#segmentos" class="botao botao--contorno">Ver todos os segmentos</a>
         </div>
         <div class="abertura__contato">
           <a href="mailto:imoveis@gruposabeh.com.br">
@@ -198,6 +232,7 @@
     </a>
   </div>
 
+  <script src="assets/menu.js"></script>
   <script src="assets/segmento.js"></script>
 </body>
 </html>

@@ -1,0 +1,791 @@
+/* Estilos compartilhados do site do Grupo Sabeh (index.html e sobre.html) */
+/*
+@font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Book.woff2')  format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Bold.woff2')  format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Black.woff2') format('woff2'); font-weight: 900; font-display: swap; }
+*/
+
+/* =============================================
+   CORES E TIPOGRAFIA DA MARCA (Manual de Identidade)
+============================================= */
+:root {
+  --teal: #0088AA;          /* Primária  · Pantone 2203 C */
+  --azul-escuro: #224F5A;   /* Secundária · Pantone 7477 C */
+  --branco: #FFFFFF;
+  --preto: #000000;
+
+  /* Tons de apoio derivados das cores da marca */
+  --azul-profundo: #163840;
+  --teal-claro: #E6F3F7;
+  --cinza-texto: #4A5F65;
+  --linha: #D5E3E7;
+
+  --fonte: 'Gotham', 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --largura: 1180px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+body {
+  font-family: var(--fonte);
+  font-weight: 400;
+  color: var(--azul-escuro);
+  background: var(--branco);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+.container {
+  width: 100%;
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+
+.rotulo::before {
+  content: '';
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+}
+
+h1, h2, h3 { font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin-bottom: 24px; }
+h3 { font-size: 1.25rem; }
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fonte);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px 30px;
+  border: 2px solid var(--teal);
+  background: var(--teal);
+  color: var(--branco);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.botao:hover { background: var(--azul-escuro); border-color: var(--azul-escuro); }
+.botao--contorno { background: transparent; border-color: rgba(255,255,255,0.6); }
+.botao--contorno:hover { background: var(--branco); border-color: var(--branco); color: var(--azul-escuro); }
+.botao svg { width: 18px; height: 18px; }
+
+/* =============================================
+   LOGOTIPO
+   Arquivos oficiais em /assets. A versão horizontal (símbolo + nome lado a lado)
+   é montada com o símbolo e o nome originais, sem redesenhar nada.
+   Positiva (cores) em fundo claro · Negativa (branco) em fundo escuro.
+============================================= */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.logo__simbolo { height: 44px; width: auto; }
+.logo__nome { height: 15px; width: auto; }
+.logo .positiva { display: none; }
+.logo--positiva .positiva { display: block; }
+.logo--positiva .negativa { display: none; }
+
+/* =============================================
+   CABEÇALHO
+============================================= */
+.cabecalho {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.cabecalho .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+}
+.cabecalho.rolado { background: var(--branco); box-shadow: 0 1px 0 var(--linha); }
+.cabecalho.rolado .logo .positiva, .cabecalho.aberto .logo .positiva { display: block; }
+.cabecalho.rolado .logo .negativa, .cabecalho.aberto .logo .negativa { display: none; }
+
+.menu { display: flex; gap: 36px; list-style: none; }
+.menu a {
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  transition: color 0.2s;
+}
+.menu a:hover { color: var(--branco); }
+.cabecalho.rolado .menu a { color: var(--azul-escuro); }
+.cabecalho.rolado .menu a:hover { color: var(--teal); }
+
+.menu-botao {
+  display: none;
+  background: none;
+  border: 0;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  color: var(--branco);
+}
+.cabecalho.rolado .menu-botao { color: var(--azul-escuro); }
+.menu-botao span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin: 5px auto;
+  background: currentColor;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+/* =============================================
+   1 · INÍCIO (HERO)
+============================================= */
+.hero {
+  position: relative;
+  color: var(--branco);
+  background:
+    linear-gradient(135deg, rgba(22,56,64,0.94) 0%, rgba(34,79,90,0.88) 55%, rgba(0,136,170,0.82) 100%),
+    /* Para usar foto real do portfólio, adicione: url('assets/hero.jpg') center / cover no-repeat, */
+    var(--azul-escuro);
+  overflow: hidden;
+}
+/* Padrão de linha diagonal derivado do traço do "S" do símbolo (Bloco 4 — elementos de apoio) */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -55deg,
+    rgba(255,255,255,0.06) 0 1px,
+    transparent 1px 44px
+  );
+  mask-image: linear-gradient(to left, #000 0%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero .container {
+  position: relative;
+  z-index: 1;
+  padding-top: 150px;
+  padding-bottom: 72px;
+}
+.hero .rotulo { color: rgba(255,255,255,0.9); }
+.hero h1 {
+  font-size: clamp(2.1rem, 5vw, 3.8rem);
+  max-width: 20ch;
+  margin-bottom: 20px;
+}
+.hero h1 em { font-style: normal; font-weight: 300; display: block; }
+.hero p {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  max-width: 56ch;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 40px;
+}
+
+.busca select:focus, .busca input:focus, .imoveis__ordem select:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(0,136,170,0.15);
+}
+.busca .botao { justify-content: center; cursor: pointer; padding: 15px 28px; }
+
+/* =============================================
+   2 · QUEM SOMOS
+============================================= */
+.secao { padding: clamp(80px, 11vw, 140px) 0; }
+
+.sobre__grade {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(40px, 7vw, 100px);
+  align-items: start;
+}
+.sobre__texto p { color: var(--cinza-texto); margin-bottom: 20px; }
+.sobre__texto p:last-child { margin-bottom: 0; }
+
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 64px;
+  border-top: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+}
+.numeros div {
+  padding: 36px 24px;
+  text-align: center;
+}
+.numeros div + div { border-left: 1px solid var(--linha); }
+.numeros strong {
+  display: block;
+  font-weight: 900;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+.numeros span {
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--azul-escuro);
+}
+
+.valores {
+  background: var(--teal-claro);
+}
+.valores__grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--linha);
+  border: 1px solid var(--linha);
+  margin-top: 56px;
+}
+.valor {
+  background: var(--branco);
+  padding: 40px 32px;
+}
+.valor__num {
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--teal);
+  margin-bottom: 28px;
+  display: block;
+}
+.valor h3 { margin-bottom: 12px; }
+.valor p { font-size: 0.94rem; color: var(--cinza-texto); }
+
+/* =============================================
+   3 · SEGMENTOS
+============================================= */
+.segmentos__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 56px;
+}
+.segmentos__topo p { max-width: 44ch; color: var(--cinza-texto); }
+
+.segmentos__grade {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.segmento {
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+}
+.segmento:hover {
+  border-color: var(--teal);
+  box-shadow: 0 18px 40px rgba(34,79,90,0.10);
+  transform: translateY(-3px);
+}
+.segmento__icone {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: var(--teal-claro);
+  color: var(--teal);
+  margin-bottom: 32px;
+}
+.segmento__icone svg { width: 30px; height: 30px; }
+/* Agronegócio: único segmento com tom terroso aceito pelo manual (Bloco 4 — estilo fotográfico) */
+.segmento--agro .segmento__icone { background: #F3EEE6; color: #7A5C34; }
+
+/* Hierarquia do manual: SABEH 100% em Bold, segmento 60–70% em Book, logo abaixo, ambos em #224F5A */
+.segmento__marca { line-height: 1; margin-bottom: 20px; color: var(--azul-escuro); }
+.segmento__marca b {
+  display: block;
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: 0.06em;
+}
+.segmento__marca span {
+  display: block;
+  font-weight: 400;
+  font-size: 1.15rem; /* ~65% de SABEH */
+  margin-top: 4px;
+}
+.segmento p { color: var(--cinza-texto); font-size: 0.96rem; margin-bottom: 20px; }
+.segmento__link {
+  display: inline-block;
+  margin-top: 16px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--teal);
+}
+.segmento__link:hover { color: var(--azul-escuro); }
+.segmento ul { list-style: none; margin-top: auto; border-top: 1px solid var(--linha); padding-top: 20px; }
+.segmento li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.88rem;
+  color: var(--azul-escuro);
+  margin-bottom: 8px;
+}
+.segmento li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 10px;
+  height: 1px;
+  background: var(--teal);
+}
+
+/* =============================================
+   4 · MANIFESTO
+============================================= */
+.manifesto {
+  background: var(--azul-escuro);
+  color: var(--branco);
+  position: relative;
+  overflow: hidden;
+}
+.manifesto .rotulo { color: #7FCBDD; }
+.manifesto__grade {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: clamp(40px, 7vw, 100px);
+  align-items: start;
+}
+.manifesto__titulo {
+  font-weight: 900;
+  font-size: clamp(2.2rem, 5.2vw, 4rem);
+  line-height: 1.05;
+  position: sticky;
+  top: 120px;
+}
+.manifesto__titulo span { display: block; font-weight: 300; color: #7FCBDD; }
+.manifesto__texto p {
+  font-size: clamp(1.02rem, 1.5vw, 1.15rem);
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 26px;
+}
+.manifesto__texto p.destaque {
+  font-weight: 700;
+  color: var(--branco);
+}
+.manifesto__assinatura {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--branco);
+}
+
+/* =============================================
+   5 · CONTATO
+============================================= */
+.contato__grade {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(40px, 7vw, 100px);
+  align-items: start;
+}
+.contato__texto p { color: var(--cinza-texto); margin-bottom: 36px; max-width: 46ch; }
+
+.contato__lista { list-style: none; border-top: 1px solid var(--linha); }
+.contato__lista li {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--linha);
+}
+.contato__lista small {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  padding-top: 3px;
+}
+.contato__lista a { text-decoration: none; }
+.contato__lista a:hover { color: var(--teal); }
+
+/* =============================================
+   RODAPÉ
+============================================= */
+.rodape {
+  background: var(--azul-profundo);
+  color: rgba(255,255,255,0.65);
+  padding: 64px 0 40px;
+  font-size: 0.86rem;
+}
+.rodape__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.rodape__tagline {
+  font-weight: 300;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--branco);
+}
+.rodape__redes { display: flex; gap: 12px; }
+.rodape__redes a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--branco);
+  transition: background 0.2s, border-color 0.2s;
+}
+.rodape__redes a:hover { background: var(--teal); border-color: var(--teal); }
+.rodape__redes svg { width: 18px; height: 18px; }
+.rodape__base {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 28px;
+  font-size: 0.78rem;
+  font-weight: 300;
+}
+
+/* Botões flutuantes de e-mail e WhatsApp (canais principais de atendimento) */
+.flutuantes {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90;
+  display: flex;
+  gap: 12px;
+}
+.whatsapp-flutuante {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--teal);
+  color: var(--branco);
+  box-shadow: 0 8px 24px rgba(22,56,64,0.3);
+  transition: transform 0.2s, background 0.2s;
+}
+.whatsapp-flutuante:hover { transform: scale(1.06); background: var(--azul-escuro); }
+.whatsapp-flutuante svg { width: 28px; height: 28px; }
+.whatsapp-flutuante--email { background: var(--azul-escuro); }
+.whatsapp-flutuante--email:hover { background: var(--teal); }
+.whatsapp-flutuante--email svg { width: 26px; height: 26px; }
+
+/* Contatos rápidos na abertura */
+.hero__contato {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: 32px;
+  font-size: 0.95rem;
+}
+.hero__contato a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+}
+.hero__contato a:hover { color: var(--branco); }
+.hero__contato svg { width: 18px; height: 18px; flex: none; }
+
+/* Localização */
+.local { background: var(--teal-claro); }
+.local__grade {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+.local__texto p { color: var(--cinza-texto); margin-bottom: 28px; }
+.local__endereco { font-weight: 700; font-size: 1.1rem; color: var(--azul-escuro); margin-bottom: 28px; line-height: 1.5; }
+.local__mapa {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--linha);
+  border: 1px solid var(--linha);
+}
+.local__mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.rodape__contato a { text-decoration: none; }
+.rodape__contato a:hover { color: var(--branco); }
+
+/* Animação de entrada */
+.revelar { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.revelar.visivel { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .revelar { opacity: 1; transform: none; transition: none; }
+}
+
+.diferenciais {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px 40px;
+  margin-top: 40px;
+}
+.diferenciais h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--branco); }
+.diferenciais p { font-size: 0.95rem; margin-bottom: 0; }
+.diferenciais div { padding-top: 20px; border-top: 2px solid var(--teal); }
+
+/* Formulário de contato */
+.formulario {
+  display: grid;
+  gap: 20px;
+  padding: 40px;
+  background: var(--teal-claro);
+}
+.formulario label { display: grid; gap: 8px; }
+.formulario label span {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--azul-escuro);
+}
+.formulario input, .formulario select, .formulario textarea {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--azul-escuro);
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: 0;
+  padding: 14px 16px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.formulario textarea { resize: vertical; }
+.formulario input:focus, .formulario select:focus, .formulario textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(0,136,170,0.15);
+}
+.formulario .botao { justify-content: center; cursor: pointer; }
+.formulario__erro { color: #B3261E; font-size: 0.88rem; min-height: 0; }
+.formulario__erro:empty { display: none; }
+.contato__texto .contato__lista { margin-top: 8px; }
+
+/* =============================================
+   IMÓVEIS DISPONÍVEIS
+============================================= */
+.imoveis { padding-top: clamp(64px, 8vw, 100px); }
+.imoveis__topo { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.imoveis__topo h2 { margin-bottom: 0; }
+.imoveis__ordem { display: grid; gap: 6px; min-width: 200px; }
+.imoveis__ordem span { font-weight: 700; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.aviso-exemplo {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  background: #FFF6E0;
+  border-left: 3px solid #C98A00;
+  color: #5C4300;
+  font-size: 0.92rem;
+}
+
+.imoveis__resumo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; margin-bottom: 20px; font-size: 0.9rem; }
+.imoveis__total { color: var(--cinza-texto); }
+.imoveis__filtros { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; color: var(--azul-escuro); font-weight: 700; }
+.imoveis__filtros button {
+  font: inherit;
+  font-weight: 400;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.imoveis__filtros button:hover { color: var(--azul-escuro); }
+.imoveis__filtros[hidden], .aviso-exemplo[hidden], .imoveis__vazio[hidden] { display: none; }
+.imoveis__grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.imovel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+}
+.imovel:hover { border-color: var(--teal); box-shadow: 0 18px 40px rgba(34,79,90,0.10); transform: translateY(-3px); }
+.imovel__abrir { position: absolute; inset: 0; z-index: 2; border: 0; background: none; cursor: pointer; }
+.imovel__abrir:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.imovel__foto, .detalhe__foto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,0.85);
+  background-color: var(--azul-escuro);
+  background-size: cover;
+  background-position: center;
+}
+.imovel__foto > svg, .detalhe__foto > svg { width: 26%; height: auto; }
+.imovel__foto--residencial { background-color: #2E6470; }
+.imovel__foto--terreno { background-color: #1E5D6E; }
+.imovel__foto--rural { background-color: #5E4728; }
+.selo {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  background: var(--branco);
+  color: var(--azul-escuro);
+}
+.selo--destaque { left: auto; right: 14px; background: var(--teal); color: var(--branco); }
+.selo--exemplo { top: auto; bottom: 14px; background: #FFF6E0; color: #5C4300; }
+.imovel__corpo { display: flex; flex-direction: column; flex: 1; padding: 22px 24px 20px; }
+.imovel__tipo { font-weight: 700; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; }
+.imovel h3 { font-size: 1.12rem; margin-bottom: 6px; }
+.imovel__local { font-size: 0.9rem; color: var(--cinza-texto); }
+.imovel__specs { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 14px; font-size: 0.86rem; }
+.imovel__specs li { display: inline-flex; }
+.imovel__rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--linha);
+}
+.imovel__specs + .imovel__rodape, .imovel__local + .imovel__rodape { margin-top: 18px; }
+.imovel__preco { font-weight: 900; font-size: 1.2rem; color: var(--azul-escuro); }
+.imovel__preco small, .detalhe__preco small { font-weight: 400; font-size: 0.8em; color: var(--cinza-texto); }
+.imovel__codigo { font-size: 0.78rem; color: var(--cinza-texto); white-space: nowrap; }
+
+.imoveis__vazio { padding: 48px 32px; text-align: center; border: 1px dashed var(--linha); }
+.imoveis__vazio h3 { margin-bottom: 8px; }
+.imoveis__vazio p { color: var(--cinza-texto); margin-bottom: 24px; }
+.imoveis__vazio-acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.botao--linha { background: transparent; color: var(--azul-escuro); border-color: var(--azul-escuro); cursor: pointer; }
+.botao--linha:hover { background: var(--azul-escuro); color: var(--branco); }
+
+/* Janela de detalhes do imóvel */
+.detalhe {
+  width: min(1000px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  color: var(--azul-escuro);
+  background: var(--branco);
+  box-shadow: 0 30px 80px rgba(10,30,36,0.35);
+}
+.detalhe::backdrop { background: rgba(10,30,36,0.6); }
+.detalhe__fechar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  background: var(--branco);
+  color: var(--azul-escuro);
+}
+.detalhe__grade { display: grid; grid-template-columns: 1.1fr 1fr; }
+.detalhe__foto { aspect-ratio: auto; min-height: 100%; }
+.detalhe__galeria { display: flex; flex-direction: column; min-height: 360px; }
+.detalhe__galeria .detalhe__foto { flex: 1; }
+.detalhe__miniaturas { display: flex; gap: 6px; padding: 6px; background: var(--azul-profundo); overflow-x: auto; }
+.detalhe__miniaturas button { flex: none; width: 72px; height: 54px; border: 0; cursor: pointer; background-size: cover; background-position: center; }
+.detalhe__info { padding: 40px 36px 36px; }
+.detalhe__info h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 6px 0 8px; padding-right: 32px; }
+.detalhe__preco { font-weight: 900; font-size: 1.6rem; margin: 18px 0; }
+.detalhe__specs { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1px; background: var(--linha); border: 1px solid var(--linha); margin-bottom: 20px; }
+.detalhe__specs li { background: var(--branco); padding: 12px 14px; font-weight: 700; }
+.detalhe__specs small { display: block; font-weight: 400; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cinza-texto); }
+.detalhe__descricao { color: var(--cinza-texto); margin-bottom: 16px; }
+.detalhe__codigo { font-size: 0.88rem; color: var(--cinza-texto); margin-bottom: 24px; }
+.detalhe__acoes { display: flex; flex-wrap: wrap; gap: 12px; }
+.detalhe__acoes .botao svg { width: 18px; height: 18px; }
+
+/* =============================================
+   RESPONSIVO
+============================================= */
+@media (max-width: 960px) {
+  .valores__grade { grid-template-columns: repeat(2, 1fr); }
+  .sobre__grade, .manifesto__grade, .contato__grade, .local__grade { grid-template-columns: 1fr; }
+  .imoveis__grade { grid-template-columns: repeat(2, 1fr); }
+  .detalhe__grade { grid-template-columns: 1fr; }
+  .detalhe__galeria { min-height: 240px; }
+  .manifesto__titulo { position: static; }
+  .segmentos__topo { flex-direction: column; align-items: start; }
+}
+
+@media (max-width: 760px) {
+  .container { padding: 0 16px; }
+
+  .segmentos__grade, .valores__grade, .diferenciais { grid-template-columns: 1fr; }
+  .formulario { padding: 24px; }
+  .segmento { padding: 28px; }
+  .numeros div { padding: 24px 8px; }
+  .numeros span { font-size: 0.8rem; }
+  .contato__lista li { grid-template-columns: 1fr; gap: 4px; }
+  .hero .container { padding-top: 116px; padding-bottom: 56px; }
+  .imoveis__grade { grid-template-columns: 1fr; }
+  .imoveis__ordem { width: 100%; }
+  .detalhe__info { padding: 28px 20px 24px; }
+  .rodape { padding-bottom: 110px; }
+}
+
+/* Página Sobre: abertura mais curta que a da página inicial */
+.hero--sobre .hero__acoes { display: flex; flex-wrap: wrap; gap: 16px; }
+.hero--sobre h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); max-width: 14ch; }
+/* Aba da página ou seção em que a pessoa está */
+.menu a[aria-current] { font-weight: 700; }
+.botao[hidden] { display: none; }
+.imoveis__total:empty, .imoveis__ordem[hidden] { display: none; }

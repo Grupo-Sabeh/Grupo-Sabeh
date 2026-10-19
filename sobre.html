@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre o Grupo Sabeh</title>
+  <meta name="description" content="Conheça o Grupo Sabeh: holding patrimonial de Assis-SP construída por duas gerações, com atuação em imóveis, loteamentos, construção sob demanda e agronegócio.">
+  <meta name="theme-color" content="#224F5A">
+
+  <meta property="og:title" content="Sobre o Grupo Sabeh — Nunca foi vitrine. Sempre foi resultado.">
+  <meta property="og:description" content="Holding patrimonial de Assis-SP. Patrimônio próprio, negociação direta, duas gerações de resultado.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.gruposabeh.com.br/sobre.html">
+  <meta property="og:image" content="https://www.gruposabeh.com.br/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!--
+    TIPOGRAFIA
+    A fonte oficial da marca é a Gotham (Light, Book, Bold, Black), que é paga.
+    Quando os arquivos licenciados de webfont estiverem disponíveis, coloque-os em
+    assets/fonts/ e descomente os @font-face no início de assets/site.css. Até lá, o site usa Montserrat
+    (Google Fonts), a alternativa gratuita mais próxima.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/menu.css">
+</head>
+<body>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="icone-email" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M3 5.5h18v13H3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="m3.5 6 8.5 7 8.5-7"/></symbol>
+    <symbol id="icone-whatsapp" viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35M12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.4 9.4 0 0 1-1.44-5.01c0-5.2 4.23-9.43 9.44-9.43 2.52 0 4.89.98 6.67 2.77a9.37 9.37 0 0 1 2.76 6.67c0 5.2-4.24 9.43-9.44 9.43M20.1 3.9A11.3 11.3 0 0 0 12.05.57C5.77.57.66 5.68.66 11.95c0 2 .52 3.96 1.52 5.69L.57 23.5l6-1.57a11.4 11.4 0 0 0 5.47 1.4h.01c6.27 0 11.38-5.11 11.39-11.38 0-3.04-1.18-5.9-3.34-8.05"/></symbol>
+  </svg>
+
+  <!-- ============ CABEÇALHO ============ -->
+  <header class="cabecalho" id="cabecalho">
+    <div class="container">
+      <a href="index.html" class="logo" aria-label="Grupo Sabeh — início">
+        <img class="logo__simbolo negativa" src="assets/simbolo-branco.png" alt="" width="488" height="707">
+        <img class="logo__nome negativa" src="assets/nome-branco.png" alt="Grupo Sabeh" width="1002" height="92">
+        <img class="logo__simbolo positiva" src="assets/simbolo.png" alt="" width="488" height="707">
+        <img class="logo__nome positiva" src="assets/nome.png" alt="Grupo Sabeh" width="1002" height="92">
+      </a>
+
+      <nav aria-label="Menu principal">
+        <ul class="menu" id="menu">
+          <li><a href="index.html#imoveis">Imóveis</a></li>
+          <li><a href="sobre.html" aria-current="page">Sobre</a></li>
+          <li><a href="index.html#localizacao">Localização</a></li>
+          <li><a href="index.html#contato">Contato</a></li>
+        </ul>
+      </nav>
+
+      <button class="menu-botao" id="menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="painel">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Painel do ☰: segmentos (no celular, também as abas principais) -->
+    <div class="painel" id="painel" hidden>
+      <div class="container painel__grade">
+        <ul class="painel__abas">
+            <li><a href="index.html#imoveis">Imóveis</a></li>
+            <li><a href="sobre.html" aria-current="page">Sobre</a></li>
+            <li><a href="index.html#localizacao">Localização</a></li>
+            <li><a href="index.html#contato">Contato</a></li>
+        </ul>
+        <nav class="painel__segmentos" aria-label="Segmentos">
+          <p class="painel__titulo">Segmentos</p>
+          <ul>
+              <li><a href="imoveis.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/></svg></span>
+                <span>Imóveis</span>
+              </a></li>
+              <li><a href="construcao.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M9 28V6h2v22"/><path d="M5 6h22l-4 4"/><path d="M23 10v5"/><path d="M16 28V17h11v11"/><path d="M3 28h26"/></svg></span>
+                <span>Construção sob demanda</span>
+              </a></li>
+              <li><a href="loteamentos.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/></svg></span>
+                <span>Loteamentos</span>
+              </a></li>
+              <li><a href="agronegocio.html">
+                <span class="painel__icone painel__icone--agro"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/></svg></span>
+                <span>Agronegócio</span>
+              </a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ 1 · ABERTURA ============ -->
+    <section class="hero hero--sobre" id="inicio">
+      <div class="container">
+        <span class="rotulo">Sobre o Grupo Sabeh</span>
+        <h1>Nunca foi vitrine. <em>Sempre foi resultado.</em></h1>
+        <p>
+          Há mais de 20 anos, o Grupo Sabeh constrói, administra e negocia patrimônio próprio
+          em Assis e região: imóveis, loteamentos, construção sob demanda e terras rurais.
+        </p>
+        <div class="hero__acoes">
+          <a href="index.html#imoveis" class="botao">Ver imóveis disponíveis</a>
+          <a href="#segmentos" class="botao botao--contorno">Conheça os segmentos</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2 · HISTÓRIA ============ -->
+    <section class="secao" id="sobre">
+      <div class="container">
+        <div class="sobre__grade">
+          <div class="revelar">
+            <span class="rotulo">Sobre o Grupo Sabeh</span>
+            <h2>Uma holding patrimonial construída por duas gerações.</h2>
+          </div>
+          <div class="sobre__texto revelar">
+            <p>
+              Tudo começou com Nami Sabeh, ainda como varejista, adquirindo imóveis aos poucos:
+              comprando, vendendo, alugando, arrendando terra. Dos primeiros imóveis vieram os terrenos
+              e os loteamentos. Mais adiante, a experiência acumulada abriu caminho para construir exatamente
+              o que outras empresas precisavam, sob medida.
+            </p>
+            <p>
+              Em 2003, os filhos de Nami formalizaram esse conjunto de negócios como holding: a Hebas Holding,
+              que hoje se apresenta como Grupo Sabeh. O objetivo foi dar estrutura e proteger o patrimônio que a família vinha construindo.
+            </p>
+            <p>
+              Hoje, duas gerações administram esse legado lado a lado. A autoridade que Nami construiu ao longo
+              de décadas na comunidade empresarial de Assis segue sendo a base de cada negócio, agora com a estrutura
+              de uma marca à altura do que ela representa.
+            </p>
+          </div>
+        </div>
+
+        <div class="numeros revelar">
+          <div><strong>20+</strong><span>Anos de patrimônio</span></div>
+          <div><strong>4</strong><span>Frentes de atuação</span></div>
+          <div><strong>100%</strong><span>Portfólio próprio</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao valores" aria-labelledby="valores-titulo">
+      <div class="container">
+        <div class="revelar">
+          <span class="rotulo">Propósito e valores</span>
+          <h2 id="valores-titulo">Transformar patrimônio em oportunidade.</h2>
+          <p style="max-width: 62ch; color: var(--cinza-texto);">
+            Para a família, que construiu a holding para preservar e fazer crescer o que conquistou,
+            e para quem negocia com a gente: empresas em expansão, produtores rurais e o comércio local de Assis.
+          </p>
+        </div>
+
+        <div class="valores__grade revelar">
+          <article class="valor">
+            <span class="valor__num">01</span>
+            <h3>Patrimônio próprio, sem intermediação</h3>
+            <p>Todo negócio parte de ativos que já são do Grupo Sabeh, não de terceiros.</p>
+          </article>
+          <article class="valor">
+            <span class="valor__num">02</span>
+            <h3>Solidez antes de velocidade</h3>
+            <p>Decisões pensadas para durar gerações, não para crescimento rápido a qualquer custo.</p>
+          </article>
+          <article class="valor">
+            <span class="valor__num">03</span>
+            <h3>Proximidade genuína</h3>
+            <p>Relação direta e pessoal com quem negocia, mesmo em operações institucionais.</p>
+          </article>
+          <article class="valor">
+            <span class="valor__num">04</span>
+            <h3>Compromisso com o local</h3>
+            <p>O crescimento do Grupo Sabeh está atrelado ao fortalecimento do comércio e da economia de Assis.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3 · SEGMENTOS DE ATUAÇÃO ============ -->
+    <section class="secao" id="segmentos">
+      <div class="container">
+        <div class="segmentos__topo revelar">
+          <div>
+            <span class="rotulo">Segmentos de atuação</span>
+            <h2>Uma marca, quatro frentes.</h2>
+          </div>
+          <p>
+            Cada segmento é uma linha de serviço do Grupo Sabeh e opera sobre patrimônio do próprio grupo,
+            com titularidade clara e segurança jurídica.
+          </p>
+        </div>
+
+        <!-- Ícones provisórios: substituir pelos ícones oficiais quando o designer entregar (Bloco 4) -->
+        <div class="segmentos__grade">
+          <article class="segmento revelar">
+            <div class="segmento__icone">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/></svg>
+            </div>
+            <div class="segmento__marca"><b>SABEH</b><span>Imóveis</span></div>
+            <p>Locação e venda de imóveis comerciais do portfólio próprio, para o comércio de Assis e empresas em expansão, além de opções residenciais. Você negocia direto com quem é dono.</p>
+            <ul>
+              <li>Foco em imóveis comerciais</li>
+              <li>Também opções residenciais</li>
+              <li>Negociação direta e flexível</li>
+            </ul>
+            <a class="segmento__link" href="imoveis.html">Saiba mais →</a>
+          </article>
+
+          <article class="segmento revelar">
+            <div class="segmento__icone">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/></svg>
+            </div>
+            <div class="segmento__marca"><b>SABEH</b><span>Loteamentos</span></div>
+            <p>Desenvolvimento urbano e venda de áreas loteadas em Assis e região, sobre terra do próprio grupo.</p>
+            <ul>
+              <li>Lotes para construir</li>
+              <li>Documentação regularizada</li>
+            </ul>
+            <a class="segmento__link" href="loteamentos.html">Saiba mais →</a>
+          </article>
+
+          <article class="segmento revelar">
+            <div class="segmento__icone">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M9 28V6h2v22"/><path d="M5 6h22l-4 4"/><path d="M23 10v5"/><path d="M16 28V17h11v11"/><path d="M3 28h26"/></svg>
+            </div>
+            <div class="segmento__marca"><b>SABEH</b><span>Construção</span></div>
+            <p>Construção sob demanda (build-to-suit): erguemos o imóvel que a sua empresa precisa e você opera sem precisar comprá-lo.</p>
+            <ul>
+              <li>Projeto sob medida para redes e empresas</li>
+              <li>Facilidade de desvinculação</li>
+            </ul>
+            <a class="segmento__link" href="construcao.html">Saiba mais →</a>
+          </article>
+
+          <article class="segmento segmento--agro revelar">
+            <div class="segmento__icone">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/></svg>
+            </div>
+            <div class="segmento__marca"><b>SABEH</b><span>Agronegócio</span></div>
+            <p>Arrendamento de terras rurais próprias para empresas do setor agro, com contratos de longo prazo.</p>
+            <ul>
+              <li>Terras próprias</li>
+              <li>Segurança jurídica no arrendamento</li>
+            </ul>
+            <a class="segmento__link" href="agronegocio.html">Saiba mais →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4 · DIFERENCIAL ============ -->
+    <section class="secao manifesto" id="diferencial">
+      <div class="container">
+        <div class="manifesto__grade">
+          <div class="revelar">
+            <span class="rotulo">Nosso diferencial</span>
+            <p class="manifesto__titulo">Trabalhamos apenas com o que é <span>nosso.</span></p>
+          </div>
+          <div class="manifesto__texto revelar">
+            <p>
+              O Grupo Sabeh é uma holding patrimonial que opera exclusivamente sobre ativos próprios. Não é intermediação:
+              em cada negócio, assumimos o risco e a responsabilidade de dono.
+            </p>
+            <div class="diferenciais">
+              <div>
+                <h3>Titularidade 100% própria</h3>
+                <p>Todo o portfólio pertence ao grupo. Sem terceiros entre você e quem decide.</p>
+              </div>
+              <div>
+                <h3>Quatro frentes, uma só visão</h3>
+                <p>Gestão de ativos, loteamento, construção sob demanda e agronegócio sob a mesma estrutura.</p>
+              </div>
+              <div>
+                <h3>Mais de duas décadas em Assis</h3>
+                <p>Um nome que já circula há anos em contratos, fachadas e conversas na região.</p>
+              </div>
+              <div>
+                <h3>Relações que duram anos</h3>
+                <p>Boa parte dos nossos negócios nasce de indicação de quem já negociou com a gente.</p>
+              </div>
+            </div>
+            <div class="manifesto__assinatura">Nunca foi vitrine. Sempre foi resultado.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ============ RODAPÉ ============ -->
+  <footer class="rodape">
+    <div class="container">
+      <div class="rodape__topo">
+        <a href="index.html" class="logo" aria-label="Grupo Sabeh — voltar ao início">
+          <img class="logo__simbolo" src="assets/simbolo-branco.png" alt="" width="488" height="707">
+          <img class="logo__nome" src="assets/nome-branco.png" alt="Grupo Sabeh" width="1002" height="92">
+        </a>
+        <span class="rodape__tagline">Construindo soluções!</span>
+        <div class="rodape__redes">
+          <a href="https://instagram.com/gruposabeh" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor"/></svg>
+          </a>
+          <a href="https://facebook.com/gruposabeh" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.87.24-1.46 1.49-1.46h1.6V4.46A21 21 0 0 0 14.27 4.3c-2.3 0-3.87 1.4-3.87 3.97v2.23H7.8v3h2.6V21z"/></svg>
+          </a>
+          <a href="https://linkedin.com/company/gruposabeh" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.94 8.5H3.56V20h3.38zM5.25 3a1.96 1.96 0 1 0 0 3.92 1.96 1.96 0 0 0 0-3.92M20.44 13.4c0-3.1-1.66-4.54-3.87-4.54-1.78 0-2.58.98-3.03 1.67V8.5h-3.37c.04.95 0 11.5 0 11.5h3.37v-6.42c0-.34.03-.69.13-.93.27-.69.9-1.4 1.95-1.4 1.38 0 1.93 1.05 1.93 2.59V20h3.38z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="rodape__base">
+        <span class="rodape__contato">Grupo Sabeh é o nome fantasia da Hebas Holding · CNPJ 05.939.875/0001-77<br>Avenida Rui Barbosa, 444 · Assis-SP<br><a href="mailto:imoveis@gruposabeh.com.br">imoveis@gruposabeh.com.br</a> · <a href="https://wa.me/5518996691107" target="_blank" rel="noopener">(18) 99669-1107</a></span>
+        <span>© <span id="ano">2026</span> Grupo Sabeh. Todos os direitos reservados.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="flutuantes">
+    <a href="mailto:imoveis@gruposabeh.com.br" class="whatsapp-flutuante whatsapp-flutuante--email" aria-label="Enviar e-mail">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icone-email"/></svg>
+    </a>
+    <a href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh." class="whatsapp-flutuante" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
+    </a>
+  </div>
+
+  <script src="assets/menu.js"></script>
+  <script>
+    // Animação de entrada das seções
+    const observador = new IntersectionObserver(entradas => {
+      entradas.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visivel'); observador.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.revelar').forEach(el => observador.observe(el));
+
+    document.getElementById('ano').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

@@ -22,698 +22,16 @@
     TIPOGRAFIA
     A fonte oficial da marca é a Gotham (Light, Book, Bold, Black), que é paga.
     Quando os arquivos licenciados de webfont estiverem disponíveis, coloque-os em
-    assets/fonts/ e descomente os @font-face abaixo. Até lá, o site usa Montserrat
+    assets/fonts/ e descomente os @font-face no início de assets/site.css. Até lá, o site usa Montserrat
     (Google Fonts), a alternativa gratuita mais próxima.
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
 
-  <style>
-    /*
-    @font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Book.woff2')  format('woff2'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Bold.woff2')  format('woff2'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Gotham'; src: url('assets/fonts/Gotham-Black.woff2') format('woff2'); font-weight: 900; font-display: swap; }
-    */
-
-    /* =============================================
-       CORES E TIPOGRAFIA DA MARCA (Manual de Identidade)
-    ============================================= */
-    :root {
-      --teal: #0088AA;          /* Primária  · Pantone 2203 C */
-      --azul-escuro: #224F5A;   /* Secundária · Pantone 7477 C */
-      --branco: #FFFFFF;
-      --preto: #000000;
-
-      /* Tons de apoio derivados das cores da marca */
-      --azul-profundo: #163840;
-      --teal-claro: #E6F3F7;
-      --cinza-texto: #4A5F65;
-      --linha: #D5E3E7;
-
-      --fonte: 'Gotham', 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
-      --largura: 1180px;
-    }
-
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
-
-    body {
-      font-family: var(--fonte);
-      font-weight: 400;
-      color: var(--azul-escuro);
-      background: var(--branco);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    img { max-width: 100%; display: block; }
-    a { color: inherit; }
-
-    .container {
-      width: 100%;
-      max-width: var(--largura);
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    .rotulo {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--teal);
-      margin-bottom: 20px;
-    }
-
-    .rotulo::before {
-      content: '';
-      width: 28px;
-      height: 2px;
-      background: currentColor;
-    }
-
-    h1, h2, h3 { font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
-    h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin-bottom: 24px; }
-    h3 { font-size: 1.25rem; }
-
-    .botao {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--fonte);
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 16px 30px;
-      border: 2px solid var(--teal);
-      background: var(--teal);
-      color: var(--branco);
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .botao:hover { background: var(--azul-escuro); border-color: var(--azul-escuro); }
-    .botao--contorno { background: transparent; border-color: rgba(255,255,255,0.6); }
-    .botao--contorno:hover { background: var(--branco); border-color: var(--branco); color: var(--azul-escuro); }
-    .botao svg { width: 18px; height: 18px; }
-
-    /* =============================================
-       LOGOTIPO
-       Arquivos oficiais em /assets. A versão horizontal (símbolo + nome lado a lado)
-       é montada com o símbolo e o nome originais, sem redesenhar nada.
-       Positiva (cores) em fundo claro · Negativa (branco) em fundo escuro.
-    ============================================= */
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-    }
-    .logo__simbolo { height: 44px; width: auto; }
-    .logo__nome { height: 15px; width: auto; }
-    .logo .positiva { display: none; }
-    .logo--positiva .positiva { display: block; }
-    .logo--positiva .negativa { display: none; }
-
-    /* =============================================
-       CABEÇALHO
-    ============================================= */
-    .cabecalho {
-      position: fixed;
-      inset: 0 0 auto 0;
-      z-index: 100;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    .cabecalho .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 80px;
-    }
-    .cabecalho.rolado { background: var(--branco); box-shadow: 0 1px 0 var(--linha); }
-    .cabecalho.rolado .logo .positiva, .cabecalho.aberto .logo .positiva { display: block; }
-    .cabecalho.rolado .logo .negativa, .cabecalho.aberto .logo .negativa { display: none; }
-
-    .menu { display: flex; gap: 36px; list-style: none; }
-    .menu a {
-      text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.85);
-      transition: color 0.2s;
-    }
-    .menu a:hover { color: var(--branco); }
-    .cabecalho.rolado .menu a { color: var(--azul-escuro); }
-    .cabecalho.rolado .menu a:hover { color: var(--teal); }
-
-    .menu-botao {
-      display: none;
-      background: none;
-      border: 0;
-      width: 44px;
-      height: 44px;
-      cursor: pointer;
-      color: var(--branco);
-    }
-    .cabecalho.rolado .menu-botao { color: var(--azul-escuro); }
-    .menu-botao span {
-      display: block;
-      width: 24px;
-      height: 2px;
-      margin: 5px auto;
-      background: currentColor;
-      transition: transform 0.25s, opacity 0.25s;
-    }
-
-    /* =============================================
-       1 · INÍCIO (HERO)
-    ============================================= */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      min-height: 100svh;
-      display: flex;
-      align-items: center;
-      color: var(--branco);
-      background:
-        linear-gradient(135deg, rgba(22,56,64,0.94) 0%, rgba(34,79,90,0.88) 55%, rgba(0,136,170,0.82) 100%),
-        /* Para usar foto real do portfólio, adicione: url('assets/hero.jpg') center / cover no-repeat, */
-        var(--azul-escuro);
-      overflow: hidden;
-    }
-    /* Padrão de linha diagonal derivado do traço do "S" do símbolo (Bloco 4 — elementos de apoio) */
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: repeating-linear-gradient(
-        -55deg,
-        rgba(255,255,255,0.06) 0 1px,
-        transparent 1px 44px
-      );
-      mask-image: linear-gradient(to left, #000 0%, transparent 70%);
-      -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero .container {
-      position: relative;
-      z-index: 1;
-      padding-top: 120px;
-      padding-bottom: 120px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 64px;
-    }
-    .hero__logo { width: clamp(220px, 24vw, 320px); height: auto; opacity: 0.95; }
-    .hero .rotulo { color: rgba(255,255,255,0.9); }
-    .hero h1 {
-      font-size: clamp(2.4rem, 6.4vw, 5rem);
-      max-width: 14ch;
-      margin-bottom: 28px;
-    }
-    .hero h1 em { font-style: normal; font-weight: 300; display: block; }
-    .hero p {
-      font-size: clamp(1rem, 1.6vw, 1.15rem);
-      max-width: 52ch;
-      color: rgba(255,255,255,0.85);
-      margin-bottom: 44px;
-    }
-    .hero__acoes { display: flex; flex-wrap: wrap; gap: 16px; }
-
-    .hero__rolar {
-      position: absolute;
-      bottom: 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1;
-      font-size: 0.7rem;
-      font-weight: 300;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
-      text-decoration: none;
-    }
-    .hero__rolar::after {
-      content: '';
-      width: 1px;
-      height: 28px;
-      background: linear-gradient(rgba(255,255,255,0.6), transparent);
-    }
-
-    /* =============================================
-       2 · QUEM SOMOS
-    ============================================= */
-    .secao { padding: clamp(80px, 11vw, 140px) 0; }
-
-    .sobre__grade {
-      display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: clamp(40px, 7vw, 100px);
-      align-items: start;
-    }
-    .sobre__texto p { color: var(--cinza-texto); margin-bottom: 20px; }
-    .sobre__texto p:last-child { margin-bottom: 0; }
-
-    .numeros {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      margin-top: 64px;
-      border-top: 1px solid var(--linha);
-      border-bottom: 1px solid var(--linha);
-    }
-    .numeros div {
-      padding: 36px 24px;
-      text-align: center;
-    }
-    .numeros div + div { border-left: 1px solid var(--linha); }
-    .numeros strong {
-      display: block;
-      font-weight: 900;
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      line-height: 1;
-      color: var(--teal);
-      margin-bottom: 12px;
-    }
-    .numeros span {
-      font-weight: 400;
-      font-size: 0.95rem;
-      color: var(--azul-escuro);
-    }
-
-    .valores {
-      background: var(--teal-claro);
-    }
-    .valores__grade {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--linha);
-      border: 1px solid var(--linha);
-      margin-top: 56px;
-    }
-    .valor {
-      background: var(--branco);
-      padding: 40px 32px;
-    }
-    .valor__num {
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.2em;
-      color: var(--teal);
-      margin-bottom: 28px;
-      display: block;
-    }
-    .valor h3 { margin-bottom: 12px; }
-    .valor p { font-size: 0.94rem; color: var(--cinza-texto); }
-
-    /* =============================================
-       3 · SEGMENTOS
-    ============================================= */
-    .segmentos__topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 40px;
-      margin-bottom: 56px;
-    }
-    .segmentos__topo p { max-width: 44ch; color: var(--cinza-texto); }
-
-    .segmentos__grade {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-    .segmento {
-      display: flex;
-      flex-direction: column;
-      padding: 40px;
-      background: var(--branco);
-      border: 1px solid var(--linha);
-      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
-    }
-    .segmento:hover {
-      border-color: var(--teal);
-      box-shadow: 0 18px 40px rgba(34,79,90,0.10);
-      transform: translateY(-3px);
-    }
-    .segmento__icone {
-      width: 56px;
-      height: 56px;
-      display: grid;
-      place-items: center;
-      background: var(--teal-claro);
-      color: var(--teal);
-      margin-bottom: 32px;
-    }
-    .segmento__icone svg { width: 30px; height: 30px; }
-    /* Agronegócio: único segmento com tom terroso aceito pelo manual (Bloco 4 — estilo fotográfico) */
-    .segmento--agro .segmento__icone { background: #F3EEE6; color: #7A5C34; }
-
-    /* Hierarquia do manual: SABEH 100% em Bold, segmento 60–70% em Book, logo abaixo, ambos em #224F5A */
-    .segmento__marca { line-height: 1; margin-bottom: 20px; color: var(--azul-escuro); }
-    .segmento__marca b {
-      display: block;
-      font-weight: 700;
-      font-size: 1.75rem;
-      letter-spacing: 0.06em;
-    }
-    .segmento__marca span {
-      display: block;
-      font-weight: 400;
-      font-size: 1.15rem; /* ~65% de SABEH */
-      margin-top: 4px;
-    }
-    .segmento p { color: var(--cinza-texto); font-size: 0.96rem; margin-bottom: 20px; }
-    .segmento__link {
-      display: inline-block;
-      margin-top: 16px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      text-decoration: none;
-      color: var(--teal);
-    }
-    .segmento__link:hover { color: var(--azul-escuro); }
-    .segmento ul { list-style: none; margin-top: auto; border-top: 1px solid var(--linha); padding-top: 20px; }
-    .segmento li {
-      position: relative;
-      padding-left: 20px;
-      font-size: 0.88rem;
-      color: var(--azul-escuro);
-      margin-bottom: 8px;
-    }
-    .segmento li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.7em;
-      width: 10px;
-      height: 1px;
-      background: var(--teal);
-    }
-
-    /* =============================================
-       4 · MANIFESTO
-    ============================================= */
-    .manifesto {
-      background: var(--azul-escuro);
-      color: var(--branco);
-      position: relative;
-      overflow: hidden;
-    }
-    .manifesto .rotulo { color: #7FCBDD; }
-    .manifesto__grade {
-      display: grid;
-      grid-template-columns: 1fr 1.3fr;
-      gap: clamp(40px, 7vw, 100px);
-      align-items: start;
-    }
-    .manifesto__titulo {
-      font-weight: 900;
-      font-size: clamp(2.2rem, 5.2vw, 4rem);
-      line-height: 1.05;
-      position: sticky;
-      top: 120px;
-    }
-    .manifesto__titulo span { display: block; font-weight: 300; color: #7FCBDD; }
-    .manifesto__texto p {
-      font-size: clamp(1.02rem, 1.5vw, 1.15rem);
-      color: rgba(255,255,255,0.82);
-      margin-bottom: 26px;
-    }
-    .manifesto__texto p.destaque {
-      font-weight: 700;
-      color: var(--branco);
-    }
-    .manifesto__assinatura {
-      margin-top: 44px;
-      padding-top: 32px;
-      border-top: 1px solid rgba(255,255,255,0.15);
-      font-weight: 700;
-      font-size: clamp(1rem, 1.6vw, 1.2rem);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--branco);
-    }
-
-    /* =============================================
-       5 · CONTATO
-    ============================================= */
-    .contato__grade {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(40px, 7vw, 100px);
-      align-items: start;
-    }
-    .contato__texto p { color: var(--cinza-texto); margin-bottom: 36px; max-width: 46ch; }
-
-    .contato__lista { list-style: none; border-top: 1px solid var(--linha); }
-    .contato__lista li {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 16px;
-      padding: 22px 0;
-      border-bottom: 1px solid var(--linha);
-    }
-    .contato__lista small {
-      font-weight: 700;
-      font-size: 0.82rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--teal);
-      padding-top: 3px;
-    }
-    .contato__lista a { text-decoration: none; }
-    .contato__lista a:hover { color: var(--teal); }
-
-    /* =============================================
-       RODAPÉ
-    ============================================= */
-    .rodape {
-      background: var(--azul-profundo);
-      color: rgba(255,255,255,0.65);
-      padding: 64px 0 40px;
-      font-size: 0.86rem;
-    }
-    .rodape__topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 32px;
-      flex-wrap: wrap;
-      padding-bottom: 40px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .rodape__tagline {
-      font-weight: 300;
-      font-size: 1.05rem;
-      letter-spacing: 0.04em;
-      color: var(--branco);
-    }
-    .rodape__redes { display: flex; gap: 12px; }
-    .rodape__redes a {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: var(--branco);
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .rodape__redes a:hover { background: var(--teal); border-color: var(--teal); }
-    .rodape__redes svg { width: 18px; height: 18px; }
-    .rodape__base {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding-top: 28px;
-      font-size: 0.78rem;
-      font-weight: 300;
-    }
-
-    /* Botões flutuantes de e-mail e WhatsApp (canais principais de atendimento) */
-    .flutuantes {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      z-index: 90;
-      display: flex;
-      gap: 12px;
-    }
-    .whatsapp-flutuante {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: var(--teal);
-      color: var(--branco);
-      box-shadow: 0 8px 24px rgba(22,56,64,0.3);
-      transition: transform 0.2s, background 0.2s;
-    }
-    .whatsapp-flutuante:hover { transform: scale(1.06); background: var(--azul-escuro); }
-    .whatsapp-flutuante svg { width: 28px; height: 28px; }
-    .whatsapp-flutuante--email { background: var(--azul-escuro); }
-    .whatsapp-flutuante--email:hover { background: var(--teal); }
-    .whatsapp-flutuante--email svg { width: 26px; height: 26px; }
-
-    /* Contatos rápidos na abertura */
-    .hero__contato {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 28px;
-      margin-top: 32px;
-      font-size: 0.95rem;
-    }
-    .hero__contato a {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: rgba(255,255,255,0.85);
-      text-decoration: none;
-    }
-    .hero__contato a:hover { color: var(--branco); }
-    .hero__contato svg { width: 18px; height: 18px; flex: none; }
-
-    /* Localização */
-    .local { background: var(--teal-claro); }
-    .local__grade {
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: clamp(32px, 5vw, 64px);
-      align-items: center;
-    }
-    .local__texto p { color: var(--cinza-texto); margin-bottom: 28px; }
-    .local__endereco { font-weight: 700; font-size: 1.1rem; color: var(--azul-escuro); margin-bottom: 28px; line-height: 1.5; }
-    .local__mapa {
-      position: relative;
-      aspect-ratio: 16 / 10;
-      background: var(--linha);
-      border: 1px solid var(--linha);
-    }
-    .local__mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .rodape__contato a { text-decoration: none; }
-    .rodape__contato a:hover { color: var(--branco); }
-
-    /* Animação de entrada */
-    .revelar { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
-    .revelar.visivel { opacity: 1; transform: none; }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .revelar { opacity: 1; transform: none; transition: none; }
-    }
-
-    .diferenciais {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 32px 40px;
-      margin-top: 40px;
-    }
-    .diferenciais h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--branco); }
-    .diferenciais p { font-size: 0.95rem; margin-bottom: 0; }
-    .diferenciais div { padding-top: 20px; border-top: 2px solid var(--teal); }
-
-    /* Formulário de contato */
-    .formulario {
-      display: grid;
-      gap: 20px;
-      padding: 40px;
-      background: var(--teal-claro);
-    }
-    .formulario label { display: grid; gap: 8px; }
-    .formulario label span {
-      font-weight: 700;
-      font-size: 0.82rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--azul-escuro);
-    }
-    .formulario input, .formulario select, .formulario textarea {
-      font: inherit;
-      font-size: 1rem;
-      color: var(--azul-escuro);
-      background: var(--branco);
-      border: 1px solid var(--linha);
-      border-radius: 0;
-      padding: 14px 16px;
-      width: 100%;
-      transition: border-color 0.2s;
-    }
-    .formulario textarea { resize: vertical; }
-    .formulario input:focus, .formulario select:focus, .formulario textarea:focus {
-      outline: none;
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(0,136,170,0.15);
-    }
-    .formulario .botao { justify-content: center; cursor: pointer; }
-    .formulario__erro { color: #B3261E; font-size: 0.88rem; min-height: 0; }
-    .formulario__erro:empty { display: none; }
-    .contato__texto .contato__lista { margin-top: 8px; }
-
-    /* =============================================
-       RESPONSIVO
-    ============================================= */
-    @media (max-width: 960px) {
-      .valores__grade { grid-template-columns: repeat(2, 1fr); }
-      .sobre__grade, .manifesto__grade, .contato__grade, .local__grade { grid-template-columns: 1fr; }
-      .manifesto__titulo { position: static; }
-      .segmentos__topo { flex-direction: column; align-items: start; }
-    }
-
-    @media (max-width: 760px) {
-      .container { padding: 0 16px; }
-      .menu-botao { display: block; }
-      .menu {
-        position: fixed;
-        inset: 80px 0 auto 0;
-        flex-direction: column;
-        gap: 0;
-        background: var(--branco);
-        box-shadow: 0 12px 24px rgba(22,56,64,0.12);
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-      .menu a {
-        display: block;
-        padding: 18px 16px;
-        border-top: 1px solid var(--linha);
-        color: var(--azul-escuro);
-      }
-      .cabecalho.aberto { background: var(--branco); }
-      .cabecalho.aberto .menu-botao { color: var(--azul-escuro); }
-      .cabecalho.aberto .menu { max-height: 400px; }
-      .cabecalho.aberto .menu-botao span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-      .cabecalho.aberto .menu-botao span:nth-child(2) { opacity: 0; }
-      .cabecalho.aberto .menu-botao span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-      .segmentos__grade, .valores__grade, .diferenciais { grid-template-columns: 1fr; }
-      .formulario { padding: 24px; }
-      .segmento { padding: 28px; }
-      .numeros div { padding: 24px 8px; }
-      .numeros span { font-size: 0.8rem; }
-      .contato__lista li { grid-template-columns: 1fr; gap: 4px; }
-      .hero__rolar { display: none; }
-      .hero__logo { display: none; }
-      .rodape { padding-bottom: 110px; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/busca.css">
+  <link rel="stylesheet" href="assets/menu.css">
 </head>
 <body>
 
@@ -734,39 +52,98 @@
 
       <nav aria-label="Menu principal">
         <ul class="menu" id="menu">
-          <li><a href="#sobre">Sobre</a></li>
-          <li><a href="#segmentos">Segmentos</a></li>
+          <li><a href="#imoveis">Imóveis</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
           <li><a href="#localizacao">Localização</a></li>
           <li><a href="#contato">Contato</a></li>
         </ul>
       </nav>
 
-      <button class="menu-botao" id="menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
+      <button class="menu-botao" id="menu-botao" aria-label="Abrir menu" aria-expanded="false" aria-controls="painel">
         <span></span><span></span><span></span>
       </button>
+    </div>
+
+    <!-- Painel do ☰: segmentos (no celular, também as abas principais) -->
+    <div class="painel" id="painel" hidden>
+      <div class="container painel__grade">
+        <ul class="painel__abas">
+            <li><a href="#imoveis">Imóveis</a></li>
+            <li><a href="sobre.html">Sobre</a></li>
+            <li><a href="#localizacao">Localização</a></li>
+            <li><a href="#contato">Contato</a></li>
+        </ul>
+        <nav class="painel__segmentos" aria-label="Segmentos">
+          <p class="painel__titulo">Segmentos</p>
+          <ul>
+              <li><a href="imoveis.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/></svg></span>
+                <span>Imóveis</span>
+              </a></li>
+              <li><a href="construcao.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M9 28V6h2v22"/><path d="M5 6h22l-4 4"/><path d="M23 10v5"/><path d="M16 28V17h11v11"/><path d="M3 28h26"/></svg></span>
+                <span>Construção sob demanda</span>
+              </a></li>
+              <li><a href="loteamentos.html">
+                <span class="painel__icone"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/></svg></span>
+                <span>Loteamentos</span>
+              </a></li>
+              <li><a href="agronegocio.html">
+                <span class="painel__icone painel__icone--agro"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/></svg></span>
+                <span>Agronegócio</span>
+              </a></li>
+          </ul>
+        </nav>
+      </div>
     </div>
   </header>
 
   <main>
 
-    <!-- ============ 1 · HERO / ABERTURA ============ -->
+    <!-- ============ 1 · ABERTURA COM BUSCA DE IMÓVEIS ============ -->
     <section class="hero" id="inicio">
       <div class="container">
-        <div>
-        <span class="rotulo">Holding patrimonial · Assis-SP</span>
-        <h1>Nunca foi vitrine. <em>Sempre foi resultado.</em></h1>
+        <span class="rotulo">Imóveis do Grupo Sabeh · Assis-SP</span>
+        <h1>Encontre o imóvel certo. <em>Direto com quem é dono.</em></h1>
         <p>
-          Há mais de 20 anos, o Grupo Sabeh constrói, administra e negocia patrimônio próprio
-          em Assis e região: imóveis, loteamentos, construção sob demanda e terras rurais.
+          Imóveis comerciais, residenciais, lotes e áreas rurais do portfólio próprio do Grupo Sabeh.
         </p>
-        <div class="hero__acoes">
-          <a href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh." class="botao" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
-            Falar no WhatsApp
-          </a>
-          <a href="#segmentos" class="botao botao--contorno">Conheça os segmentos</a>
-        </div>
+
+        <form class="busca" id="busca" role="search" aria-label="Buscar imóveis">
+          <div class="busca__abas" role="group" aria-label="Finalidade">
+            <button type="button" data-finalidade="" aria-pressed="true">Todos</button>
+            <button type="button" data-finalidade="alugar" aria-pressed="false">Alugar</button>
+            <button type="button" data-finalidade="comprar" aria-pressed="false">Comprar</button>
+          </div>
+          <div class="busca__campos">
+            <label>
+              <span>Tipo de imóvel</span>
+              <select id="busca-tipo">
+                <option value="">Todos os tipos</option>
+              </select>
+            </label>
+            <label>
+              <span>Bairro ou região</span>
+              <select id="busca-bairro">
+                <option value="">Todos</option>
+              </select>
+            </label>
+            <label class="busca__texto">
+              <span>Código ou palavra-chave</span>
+              <input type="search" id="busca-q" placeholder="Ex.: galpão, sala, centro">
+            </label>
+            <button type="submit" class="botao">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              Buscar
+            </button>
+          </div>
+        </form>
+
         <div class="hero__contato">
+          <a href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh." target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
+            (18) 99669-1107
+          </a>
           <a href="mailto:imoveis@gruposabeh.com.br">
             <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icone-email"/></svg>
             imoveis@gruposabeh.com.br
@@ -776,193 +153,61 @@
             Av. Rui Barbosa, 444 · Assis-SP
           </a>
         </div>
-        </div>
-        <img class="hero__logo" src="assets/logo-vertical-branco.png" alt="" width="1002" height="914">
-      </div>
-      <a href="#sobre" class="hero__rolar">Role para descobrir</a>
-    </section>
-
-    <!-- ============ 2 · SOBRE O GRUPO SABEH ============ -->
-    <section class="secao" id="sobre">
-      <div class="container">
-        <div class="sobre__grade">
-          <div class="revelar">
-            <span class="rotulo">Sobre o Grupo Sabeh</span>
-            <h2>Uma holding patrimonial construída por duas gerações.</h2>
-          </div>
-          <div class="sobre__texto revelar">
-            <p>
-              Tudo começou com Nami Sabeh, ainda como varejista, adquirindo imóveis aos poucos:
-              comprando, vendendo, alugando, arrendando terra. Dos primeiros imóveis vieram os terrenos
-              e os loteamentos. Mais adiante, a experiência acumulada abriu caminho para construir exatamente
-              o que outras empresas precisavam, sob medida.
-            </p>
-            <p>
-              Em 2003, os filhos de Nami formalizaram esse conjunto de negócios como holding: a Hebas Holding,
-              que hoje se apresenta como Grupo Sabeh. O objetivo foi dar estrutura e proteger o patrimônio que a família vinha construindo.
-            </p>
-            <p>
-              Hoje, duas gerações administram esse legado lado a lado. A autoridade que Nami construiu ao longo
-              de décadas na comunidade empresarial de Assis segue sendo a base de cada negócio, agora com a estrutura
-              de uma marca à altura do que ela representa.
-            </p>
-          </div>
-        </div>
-
-        <div class="numeros revelar">
-          <div><strong>20+</strong><span>Anos de patrimônio</span></div>
-          <div><strong>4</strong><span>Frentes de atuação</span></div>
-          <div><strong>100%</strong><span>Portfólio próprio</span></div>
-        </div>
       </div>
     </section>
 
-    <section class="secao valores" aria-labelledby="valores-titulo">
+    <!-- ============ IMÓVEIS DISPONÍVEIS (dados em assets/imoveis.js) ============ -->
+    <section class="secao imoveis" id="imoveis">
       <div class="container">
-        <div class="revelar">
-          <span class="rotulo">Propósito e valores</span>
-          <h2 id="valores-titulo">Transformar patrimônio em oportunidade.</h2>
-          <p style="max-width: 62ch; color: var(--cinza-texto);">
-            Para a família, que construiu a holding para preservar e fazer crescer o que conquistou,
-            e para quem negocia com a gente: empresas em expansão, produtores rurais e o comércio local de Assis.
-          </p>
-        </div>
-
-        <div class="valores__grade revelar">
-          <article class="valor">
-            <span class="valor__num">01</span>
-            <h3>Patrimônio próprio, sem intermediação</h3>
-            <p>Todo negócio parte de ativos que já são do Grupo Sabeh, não de terceiros.</p>
-          </article>
-          <article class="valor">
-            <span class="valor__num">02</span>
-            <h3>Solidez antes de velocidade</h3>
-            <p>Decisões pensadas para durar gerações, não para crescimento rápido a qualquer custo.</p>
-          </article>
-          <article class="valor">
-            <span class="valor__num">03</span>
-            <h3>Proximidade genuína</h3>
-            <p>Relação direta e pessoal com quem negocia, mesmo em operações institucionais.</p>
-          </article>
-          <article class="valor">
-            <span class="valor__num">04</span>
-            <h3>Compromisso com o local</h3>
-            <p>O crescimento do Grupo Sabeh está atrelado ao fortalecimento do comércio e da economia de Assis.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 3 · SEGMENTOS DE ATUAÇÃO ============ -->
-    <section class="secao" id="segmentos">
-      <div class="container">
-        <div class="segmentos__topo revelar">
+        <div class="imoveis__topo">
           <div>
-            <span class="rotulo">Segmentos de atuação</span>
-            <h2>Uma marca, quatro frentes.</h2>
+            <span class="rotulo">Imóveis disponíveis</span>
+            <h2>Portfólio próprio, negociação direta.</h2>
           </div>
-          <p>
-            Cada segmento é uma linha de serviço do Grupo Sabeh e opera sobre patrimônio do próprio grupo,
-            com titularidade clara e segurança jurídica.
+          <label class="imoveis__ordem">
+            <span>Ordenar por</span>
+            <select id="ordem">
+              <option value="destaque">Destaques</option>
+              <option value="menor">Menor preço</option>
+              <option value="maior">Maior preço</option>
+              <option value="area">Maior área</option>
+            </select>
+          </label>
+        </div>
+
+        <p class="aviso-exemplo" id="aviso-exemplo" hidden>
+          <b>Prévia:</b> os imóveis abaixo são exemplos para demonstrar a busca. Eles serão trocados pelos imóveis reais antes de o site ir ao ar.
+        </p>
+
+        <div class="imoveis__resumo" aria-live="polite">
+          <p class="imoveis__total" id="resultado-total"></p>
+          <p class="imoveis__filtros" id="filtros-ativos" hidden>
+            <span id="filtros-texto"></span>
+            <button type="button" data-limpar>Limpar filtros</button>
           </p>
         </div>
+        <div class="imoveis__grade" id="resultado-lista"></div>
 
-        <!-- Ícones provisórios: substituir pelos ícones oficiais quando o designer entregar (Bloco 4) -->
-        <div class="segmentos__grade">
-          <article class="segmento revelar">
-            <div class="segmento__icone">
-              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/></svg>
-            </div>
-            <div class="segmento__marca"><b>SABEH</b><span>Imóveis</span></div>
-            <p>Locação e venda de imóveis comerciais do portfólio próprio, para o comércio de Assis e empresas em expansão, além de opções residenciais. Você negocia direto com quem é dono.</p>
-            <ul>
-              <li>Foco em imóveis comerciais</li>
-              <li>Também opções residenciais</li>
-              <li>Negociação direta e flexível</li>
-            </ul>
-            <a class="segmento__link" href="imoveis.html">Saiba mais →</a>
-          </article>
-
-          <article class="segmento revelar">
-            <div class="segmento__icone">
-              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/></svg>
-            </div>
-            <div class="segmento__marca"><b>SABEH</b><span>Loteamentos</span></div>
-            <p>Desenvolvimento urbano e venda de áreas loteadas em Assis e região, sobre terra do próprio grupo.</p>
-            <ul>
-              <li>Lotes para construir</li>
-              <li>Documentação regularizada</li>
-            </ul>
-            <a class="segmento__link" href="loteamentos.html">Saiba mais →</a>
-          </article>
-
-          <article class="segmento revelar">
-            <div class="segmento__icone">
-              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M9 28V6h2v22"/><path d="M5 6h22l-4 4"/><path d="M23 10v5"/><path d="M16 28V17h11v11"/><path d="M3 28h26"/></svg>
-            </div>
-            <div class="segmento__marca"><b>SABEH</b><span>Construção</span></div>
-            <p>Construção sob demanda (build-to-suit): erguemos o imóvel que a sua empresa precisa e você opera sem precisar comprá-lo.</p>
-            <ul>
-              <li>Projeto sob medida para redes e empresas</li>
-              <li>Facilidade de desvinculação</li>
-            </ul>
-            <a class="segmento__link" href="construcao.html">Saiba mais →</a>
-          </article>
-
-          <article class="segmento segmento--agro revelar">
-            <div class="segmento__icone">
-              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/></svg>
-            </div>
-            <div class="segmento__marca"><b>SABEH</b><span>Agronegócio</span></div>
-            <p>Arrendamento de terras rurais próprias para empresas do setor agro, com contratos de longo prazo.</p>
-            <ul>
-              <li>Terras próprias</li>
-              <li>Segurança jurídica no arrendamento</li>
-            </ul>
-            <a class="segmento__link" href="agronegocio.html">Saiba mais →</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 4 · DIFERENCIAL ============ -->
-    <section class="secao manifesto" id="diferencial">
-      <div class="container">
-        <div class="manifesto__grade">
-          <div class="revelar">
-            <span class="rotulo">Nosso diferencial</span>
-            <p class="manifesto__titulo">Não vendemos o que é <span>de outro.</span></p>
-          </div>
-          <div class="manifesto__texto revelar">
-            <p>
-              O Grupo Sabeh é uma holding patrimonial que opera exclusivamente sobre ativos próprios. Não é intermediação:
-              em cada negócio, assumimos o risco e a responsabilidade de dono.
-            </p>
-            <div class="diferenciais">
-              <div>
-                <h3>Titularidade 100% própria</h3>
-                <p>Todo o portfólio pertence ao grupo. Sem terceiros entre você e quem decide.</p>
-              </div>
-              <div>
-                <h3>Quatro frentes, uma só visão</h3>
-                <p>Gestão de ativos, loteamento, construção sob demanda e agronegócio sob a mesma estrutura.</p>
-              </div>
-              <div>
-                <h3>Mais de duas décadas em Assis</h3>
-                <p>Um nome que já circula há anos em contratos, fachadas e conversas na região.</p>
-              </div>
-              <div>
-                <h3>Relações que duram anos</h3>
-                <p>Boa parte dos nossos negócios nasce de indicação de quem já negociou com a gente.</p>
-              </div>
-            </div>
-            <div class="manifesto__assinatura">Nunca foi vitrine. Sempre foi resultado.</div>
+        <div class="imoveis__vazio" id="resultado-vazio" hidden>
+          <h3 id="vazio-titulo">Nenhum imóvel encontrado com esses filtros.</h3>
+          <p id="vazio-texto">Nem todo o portfólio está no site. Conte o que você procura que a nossa equipe verifica.</p>
+          <div class="imoveis__vazio-acoes">
+            <a class="botao" href="https://wa.me/5518996691107?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20Grupo%20Sabeh%20e%20procuro%20um%20im%C3%B3vel." target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>
+              Falar no WhatsApp
+            </a>
+            <button type="button" class="botao botao--linha" id="vazio-limpar" data-limpar>Limpar filtros</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ 5 · LOCALIZAÇÃO ============ -->
+    <dialog class="detalhe" id="detalhe" aria-labelledby="detalhe-titulo">
+      <button type="button" class="detalhe__fechar" aria-label="Fechar">×</button>
+      <div class="detalhe__grade" id="detalhe-conteudo"></div>
+    </dialog>
+
+    <!-- ============ 2 · LOCALIZAÇÃO ============ -->
     <section class="secao local" id="localizacao">
       <div class="container local__grade">
         <div class="local__texto revelar">
@@ -978,7 +223,7 @@
       </div>
     </section>
 
-    <!-- ============ 6 · CONTATO ============ -->
+    <!-- ============ 3 · CONTATO ============ -->
     <section class="secao" id="contato">
       <div class="container">
         <div class="contato__grade">
@@ -1081,26 +326,24 @@
     </a>
   </div>
 
+  <script src="assets/menu.js"></script>
+  <script src="assets/imoveis.js"></script>
+  <script src="assets/busca.js"></script>
   <script>
-    // Cabeçalho muda de transparente para branco ao rolar
-    const cabecalho = document.getElementById('cabecalho');
-    const aoRolar = () => cabecalho.classList.toggle('rolado', window.scrollY > 40);
-    window.addEventListener('scroll', aoRolar, { passive: true });
-    aoRolar();
-
-    // Menu mobile
-    const menuBotao = document.getElementById('menu-botao');
-    menuBotao.addEventListener('click', () => {
-      const aberto = cabecalho.classList.toggle('aberto');
-      menuBotao.setAttribute('aria-expanded', aberto);
-      menuBotao.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
-    });
-    document.querySelectorAll('.menu a').forEach(link =>
-      link.addEventListener('click', () => {
-        cabecalho.classList.remove('aberto');
-        menuBotao.setAttribute('aria-expanded', 'false');
-      })
-    );
+    // Menu: deixa em negrito a aba da seção que está na tela (Imóveis no topo da página)
+    const secoesMenu = ['imoveis', 'localizacao', 'contato'].map(id => document.getElementById(id));
+    const linksMenu = document.querySelectorAll('.menu a[href^="#"], .painel__abas a[href^="#"]');
+    const marcarAba = () => {
+      let atual = 'imoveis';
+      secoesMenu.forEach(s => { if (s.getBoundingClientRect().top <= 140) atual = s.id; });
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) atual = 'contato';
+      linksMenu.forEach(a => {
+        if (a.getAttribute('href') === '#' + atual) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      });
+    };
+    window.addEventListener('scroll', marcarAba, { passive: true });
+    marcarAba();
 
     // Animação de entrada das seções
     const observador = new IntersectionObserver(entradas => {

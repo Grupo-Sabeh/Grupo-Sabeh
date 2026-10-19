@@ -95,6 +95,7 @@ h3 { font-size: 1.15rem; }
 .menu a:hover { color: var(--branco); }
 .cabecalho.rolado .menu a { color: var(--azul-escuro); }
 .cabecalho.rolado .menu a:hover { color: var(--teal); }
+.menu a[aria-current] { font-weight: 700; }
 
 .menu-botao { display: none; background: none; border: 0; width: 44px; height: 44px; cursor: pointer; color: var(--branco); }
 .cabecalho.rolado .menu-botao { color: var(--azul-escuro); }
@@ -240,22 +241,6 @@ h3 { font-size: 1.15rem; }
 }
 @media (max-width: 760px) {
   .container { padding: 0 16px; }
-  .menu-botao { display: block; }
-  .menu {
-    position: fixed; inset: 80px 0 auto 0;
-    flex-direction: column; gap: 0;
-    background: var(--branco);
-    box-shadow: 0 12px 24px rgba(22,56,64,0.12);
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-  .menu a { display: block; padding: 18px 16px; border-top: 1px solid var(--linha); color: var(--azul-escuro); }
-  .cabecalho.aberto { background: var(--branco); }
-  .cabecalho.aberto .menu-botao { color: var(--azul-escuro); }
-  .cabecalho.aberto .menu { max-height: 400px; }
-  .cabecalho.aberto .menu-botao span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .cabecalho.aberto .menu-botao span:nth-child(2) { opacity: 0; }
-  .cabecalho.aberto .menu-botao span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .abertura .container { padding-top: 120px; padding-bottom: 64px; }
   .destaque { padding: 28px 24px; }
   .complemento { padding: 22px 20px; }
