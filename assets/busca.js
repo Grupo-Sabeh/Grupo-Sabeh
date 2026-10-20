@@ -69,8 +69,8 @@
 
   const preco = i => {
     if (i.preco == null) return 'Consulte';
-    // Valor inteiro sem centavos (R$ 4.500); com centavos, sempre dois dígitos (R$ 1.250,50)
-    const valor = 'R$ ' + i.preco.toLocaleString('pt-BR', Number.isInteger(i.preco) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // Sempre com centavos: R$ 4.500,00
+    const valor = 'R$ ' + i.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return i.periodo ? `${valor}<small>/${esc(i.periodo)}</small>` : valor;
   };
 

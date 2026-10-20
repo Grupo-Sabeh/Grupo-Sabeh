@@ -36,7 +36,7 @@
   // ---------- Utilidades ----------
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const real = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2, minimumFractionDigits: 0 });
+  const real = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2, minimumFractionDigits: 2 });
   const data = s => { if (!s) return '—'; const [a, m, d] = s.slice(0, 10).split('-'); return `${d}/${m}/${a}`; };
   const dt = s => { const [a, m, d] = s.slice(0, 10).split('-').map(Number); return new Date(a, m - 1, d); };
   const hoje = () => { const h = new Date(); return new Date(h.getFullYear(), h.getMonth(), h.getDate()); };
@@ -296,7 +296,8 @@
     else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
     return /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
   }
-  const valorBr = v => v == null ? '' : v.toLocaleString('pt-BR', Number.isInteger(v) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Sempre com centavos: 4.500,00
+  const valorBr = v => v == null ? '' : v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   function linhaAnuncio(a) {
     const [rotulo, cls] = SITUACAO_SITE[a.situacao];
