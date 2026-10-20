@@ -351,6 +351,12 @@ h3 { font-size: 1.25rem; }
   color: var(--teal);
 }
 .segmento__link:hover { color: var(--azul-escuro); }
+/* O cartão inteiro abre a página do segmento, não só o "Saiba mais" */
+.segmento { position: relative; cursor: pointer; }
+.segmento__link::after { content: ''; position: absolute; inset: 0; }
+.segmento:hover .segmento__link { color: var(--azul-escuro); }
+.segmento:focus-within { border-color: var(--teal); }
+.segmento__link:focus-visible { outline: none; text-decoration: underline; }
 .segmento ul { list-style: none; margin-top: auto; border-top: 1px solid var(--linha); padding-top: 20px; }
 .segmento li {
   position: relative;
