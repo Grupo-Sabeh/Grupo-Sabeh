@@ -61,8 +61,8 @@
   const telaErro = () => { $('#app').innerHTML = `<div class="faixa"><div class="miolo carregando"><p>Não foi possível carregar a sua área agora.</p><p><a class="btn" href="area.html">Tentar de novo</a> <a class="btn btn--linha" href="entrar.html">Voltar para entrar</a></p></div></div>`; };
   let duas;
   try { duas = await DuasEtapas.situacao(); } catch (_) { return telaErro(); }
-  if (duas.precisaCodigo) return DuasEtapas.pedirCodigo($('#app'), duas.app, () => location.reload());
-  if (emailAdmin && !duas.app) return DuasEtapas.configurar($('#app'), { obrigatorio: true, aoConcluir: () => location.reload() });
+  if (duas.precisaCodigo) return DuasEtapas.pedirCodigo($('#app'), duas, () => location.reload());
+  if (emailAdmin && !duas.app && !duas.email) return DuasEtapas.escolherObrigatorio($('#app'), () => location.reload());
 
   // A tela da administração só aparece para a conta confirmada do administrador, depois do código (o banco também confere)
   const souAdmin = emailAdmin && duas.comCodigo;
@@ -172,6 +172,26 @@
     }).join('')}</ul>`;
   }
 
+  // ---------- Verificação em duas etapas: escolher a forma ----------
+  function secaoSeguranca() {
+    const linha = (titulo, texto, ativo, acao) => `<li><div class="docs__nome"><b>${titulo}</b><small>${texto}</small></div>
+      ${ativo ? '<span class="selo selo--ok">Ativado</span>' : '<span class="selo selo--alerta">Desativado</span>'}
+      <button class="btn ${ativo ? 'btn--linha ' : ''}btn--pequeno" data-acao="${ativo ? 'desativar' : 'ativar'}-${acao}">${ativo ? 'Desativar' : 'Ativar'}</button></li>`;
+    return `<section class="painel"><h2>Verificação em duas etapas</h2>
+      <p class="vazio">${souAdmin
+        ? 'Obrigatória para o administrador: mantenha pelo menos uma forma ativa.'
+        : 'Além da senha, pedimos um código ao entrar. Escolha como quer receber o código; se ativar as duas, você escolhe na hora de entrar.'}</p>
+      <ul class="docs" style="margin-top:14px">
+        ${linha('App autenticador no celular', 'Google Authenticator ou Microsoft Authenticator. A forma mais segura.', !!duas.app, 'app')}
+        ${linha('Código por e-mail', `Enviamos um código para ${esc(usuario.email)} a cada entrada.`, duas.email, 'email')}
+      </ul></section>`;
+  }
+  // Depois de mudar a forma de verificação, recarrega a página (pode ser preciso confirmar o código de novo)
+  function recarregarComAviso(msg) {
+    try { sessionStorage.setItem('sabeh-aviso', msg); sessionStorage.setItem('sabeh-aba', estado.aba); } catch (_) { /* sem armazenamento */ }
+    location.reload();
+  }
+
   // ---------- Área do cliente ----------
   function telaCliente(idCliente) {
     const cl = souAdmin ? cliente(idCliente) : { id: usuario.id, ...(clientes.find(c => c.id === usuario.id) || { nome: usuario.email, email: usuario.email, doc: '—', tel: '—' }) };
@@ -219,13 +239,7 @@
           <div><small>Nome</small><b>${esc(cl.nome)}</b></div><div><small>Documento</small><b>${esc(cl.doc)}</b></div>
           <div><small>E-mail</small><b>${esc(cl.email)}</b></div><div><small>Telefone</small><b>${esc(cl.tel)}</b></div></div>
           <p class="vazio" style="margin-top:14px"><button class="link" data-acao="trocar-senha">Trocar minha senha</button></p></section>
-        ${souAdmin ? '' : `<section class="painel"><div class="painel__topo"><h2>Verificação em duas etapas</h2>${duas.app ? '<span class="selo selo--ok">Ativada</span>' : '<span class="selo selo--alerta">Desativada</span>'}</div>
-          <p class="vazio">${duas.app
-            ? 'Ao entrar, além da senha, pedimos o código do app autenticador do seu celular.'
-            : 'Proteja a sua conta: além da senha, pedimos um código do app autenticador do seu celular (Google Authenticator ou Microsoft Authenticator).'}</p>
-          <div class="acoes" style="justify-content:flex-start;margin-top:14px">${duas.app
-            ? '<button class="btn btn--linha" data-acao="desativar-2etapas">Desativar</button>'
-            : '<button class="btn" data-acao="ativar-2etapas">Ativar</button>'}</div></section>`}`;
+        ${souAdmin ? '' : secaoSeguranca()}`;
     }
     const faixaAdm = souAdmin
       ? `<div class="modo-adm faixa"><div class="miolo"><span>Você está vendo a área de <b>${esc(cl.nome)}</b> como administrador.</span><button class="btn btn--pequeno" data-acao="voltar-admin">Voltar à administração</button></div></div>` : '';
@@ -280,12 +294,14 @@
       corpo = `<div class="titulo-pagina"><div><h1>Contas a receber</h1><p>Aluguéis, parcelas e arrendamentos de todos os clientes.</p></div>${imoveis.some(i => i.relacao !== 'processo') ? '<div class="acoes"><button class="btn btn--linha" data-acao="gerar-mes">Lançar contas do mês</button><button class="btn" data-acao="nova-cobranca">+ Lançar conta</button></div>' : ''}</div>
         <section class="painel"><div class="painel__topo"><div class="filtros" role="group" aria-label="Filtrar">${filtros.map(([id, r]) => `<button data-filtro="${id}" aria-pressed="${estado.filtro === id}">${r}</button>`).join('')}</div></div>
         ${tabelaCobrancas(lista, true)}</section>`;
+    } else if (estado.aba === 'seguranca') {
+      corpo = `<div class="titulo-pagina"><div><h1>Segurança</h1><p>Como a conta de administrador confirma a entrada.</p></div></div>${secaoSeguranca()}`;
     } else if (estado.aba === 'processos') {
       corpo = `<div class="titulo-pagina"><div><h1>Processos em andamento</h1><p>Compras e locações que ainda estão na fase de papelada.</p></div></div>
         ${proc.length ? `<div class="grade grade--2">${proc.map(i => cartaoImovel(i, true)).join('')}</div>` : '<p class="vazio">Nenhum processo em andamento.</p>'}`;
     }
     return topo('Administração', 'Grupo Sabeh', ADMIN) +
-      abas([['resumo', 'Painel'], ['clientes', 'Clientes'], ['imoveis', 'Imóveis'], ['cobrancas', 'Contas a receber', atrasadas.length], ['processos', 'Processos']]) +
+      abas([['resumo', 'Painel'], ['clientes', 'Clientes'], ['imoveis', 'Imóveis'], ['cobrancas', 'Contas a receber', atrasadas.length], ['processos', 'Processos'], ['seguranca', 'Segurança']]) +
       `<main class="conteudo faixa"><div class="miolo">${corpo}</div></main>`;
   }
 
@@ -326,21 +342,35 @@
       case 'ver-como': Object.assign(estado, { verComo: id, aba: 'resumo' }); render(); return window.scrollTo(0, 0);
       case 'voltar-admin': Object.assign(estado, { verComo: null, aba: 'clientes' }); return render();
 
-      case 'ativar-2etapas':
+      case 'ativar-app':
         janela('<div id="configurar-2etapas"></div>');
-        return DuasEtapas.configurar($('#configurar-2etapas'), {
-          obrigatorio: false,
-          aoConcluir: async () => { fecharJanela(); duas = await DuasEtapas.situacao(); render(); aviso('Verificação em duas etapas ativada.'); },
-          aoCancelar: fecharJanela
+        return DuasEtapas.configurarApp($('#configurar-2etapas'), {
+          obrigatorio: false, aoCancelar: fecharJanela,
+          aoConcluir: () => recarregarComAviso('App autenticador ativado.')
         });
-      case 'desativar-2etapas':
-        return janela(`<h2>Desativar a verificação em duas etapas?</h2><p>Depois disso, para entrar basta o e-mail e a senha.</p>
-          <div class="acoes" style="justify-content:flex-start"><button class="btn btn--perigo" data-acao="confirmar-desativar-2etapas">Desativar</button><button class="btn btn--linha" data-fechar>Cancelar</button></div>`);
-      case 'confirmar-desativar-2etapas': {
+      case 'ativar-email':
+        janela('<div id="configurar-2etapas"></div>');
+        return DuasEtapas.configurarEmail($('#configurar-2etapas'), {
+          obrigatorio: false, aoCancelar: fecharJanela,
+          aoConcluir: () => recarregarComAviso('Código por e-mail ativado.')
+        });
+      case 'desativar-app':
+      case 'desativar-email': {
+        const ehApp = alvo.dataset.acao === 'desativar-app';
+        if (souAdmin && !(ehApp ? duas.email : duas.app)) return aviso('O administrador precisa manter pelo menos uma forma de verificação ativa. Ative a outra antes de desativar esta.');
+        return janela(`<h2>Desativar ${ehApp ? 'o app autenticador' : 'o código por e-mail'}?</h2>
+          <p>${(ehApp ? duas.email : duas.app) ? 'A outra forma continua ativa.' : 'Depois disso, para entrar basta o e-mail e a senha.'}</p>
+          <div class="acoes" style="justify-content:flex-start"><button class="btn btn--perigo" data-acao="confirmar-${alvo.dataset.acao}">Desativar</button><button class="btn btn--linha" data-fechar>Cancelar</button></div>`);
+      }
+      case 'confirmar-desativar-app': {
         fecharJanela();
-        const ok = await DuasEtapas.desativar(duas.app);
-        duas = await DuasEtapas.situacao(); render();
-        return aviso(ok ? 'Verificação em duas etapas desativada.' : 'Não foi possível desativar agora. Tente de novo.');
+        const ok = await DuasEtapas.desativarApp(duas.app);
+        return ok ? recarregarComAviso('App autenticador desativado.') : aviso('Não foi possível desativar agora. Tente de novo.');
+      }
+      case 'confirmar-desativar-email': {
+        fecharJanela();
+        const ok = await DuasEtapas.desativarEmail();
+        return ok ? recarregarComAviso('Código por e-mail desativado.') : aviso('Não foi possível desativar agora. Entre de novo e tente outra vez.');
       }
       case 'trocar-senha': {
         const { error } = await db.auth.resetPasswordForEmail(usuario.email, { redirectTo: new URL('definir-senha.html', location.href).href });
@@ -538,7 +568,11 @@
 
   try {
     await carregar();
+    try { estado.aba = sessionStorage.getItem('sabeh-aba') || estado.aba; sessionStorage.removeItem('sabeh-aba'); } catch (_) { /* sem armazenamento */ }
     render();
+    let guardado = '';
+    try { guardado = sessionStorage.getItem('sabeh-aviso') || ''; sessionStorage.removeItem('sabeh-aviso'); } catch (_) { /* sem armazenamento */ }
+    if (guardado) aviso(guardado);
   } catch (erro) {
     $('#app').innerHTML = `<div class="faixa"><div class="miolo carregando"><p>Não foi possível carregar os seus dados agora.</p><p><a class="btn" href="area.html">Tentar de novo</a> <button class="btn btn--linha" data-acao="sair">Sair</button></p></div></div>`;
   }
