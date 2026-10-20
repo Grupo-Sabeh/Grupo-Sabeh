@@ -297,7 +297,15 @@
     return /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
   }
   // Sempre com centavos: 4.500,00
-  const valorBr = v => v == null ? '' : v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const valorBr = v => v == null ? '' : Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Campo de valor em reais: aceita "4.500" ou "4.500,00" e, ao sair do campo, mostra "4.500,00"
+  const campoDinheiro = (id, v) => `<input id="${id}" data-dinheiro inputmode="decimal" autocomplete="off" placeholder="0,00" value="${esc(valorBr(v))}">`;
+  // Lê um campo de valor do formulário: vazio = 0; texto que não é valor = NaN
+  const dinheiro = (f, s) => { const t = f.querySelector(s).value.trim(); return t ? lerValor(t) : 0; };
+  const temValorInvalido = f => [...f.querySelectorAll('[data-dinheiro]')].some(c => !c.closest('[hidden]') && c.value.trim() && isNaN(lerValor(c.value)));
+  const AVISO_VALOR = 'Valor não reconhecido. Escreva como 4.500,00.';
+  // Campo de medida (m², hectares) no padrão brasileiro: "1.200" ou "48,5"
+  const campoMedida = (id, v) => `<input id="${id}" inputmode="decimal" autocomplete="off" value="${v == null ? '' : esc(Number(v).toLocaleString('pt-BR'))}">`;
 
   function linhaAnuncio(a) {
     const [rotulo, cls] = SITUACAO_SITE[a.situacao];
@@ -464,14 +472,14 @@
           </div></fieldset>
         <fieldset><legend>Valor</legend>
           <div class="form__linha form__linha--3">
-            <label for="an-preco">Valor (R$)<input id="an-preco" inputmode="decimal" autocomplete="off" placeholder="Ex.: 4.500" value="${esc(valorBr(a.preco))}"><small class="dica" id="an-preco-dica"></small></label>
+            <label for="an-preco">Valor (R$)${campoDinheiro('an-preco', a.preco)}<small class="dica" id="an-preco-dica"></small></label>
             <label for="an-periodo" data-so-aluguel>Cobrança<select id="an-periodo"><option value="mês"${a.periodo !== 'ano' ? ' selected' : ''}>Por mês</option><option value="ano"${sel(a.periodo, 'ano')}>Por ano</option></select></label>
             <label class="marcar" for="an-consulte"><input id="an-consulte" type="checkbox"${a.preco == null && !novo ? ' checked' : ''}> Mostrar "Consulte" no lugar do valor</label>
           </div></fieldset>
         <fieldset><legend>Medidas</legend>
           <div class="form__linha form__linha--3">
-            <label for="an-area" data-cat="comercial residencial terreno">Área (m²)<input id="an-area" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.area)}"></label>
-            <label for="an-hectares" data-cat="rural">Área (hectares)<input id="an-hectares" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.hectares)}"></label>
+            <label for="an-area" data-cat="comercial residencial terreno">Área (m²)${campoMedida('an-area', a.area)}</label>
+            <label for="an-hectares" data-cat="rural">Área (hectares)${campoMedida('an-hectares', a.hectares)}</label>
             <label for="an-quartos" data-cat="residencial">Quartos<input id="an-quartos" type="number" min="0" step="1" value="${v(a.quartos)}"></label>
             <label for="an-banheiros" data-cat="comercial residencial">Banheiros<input id="an-banheiros" type="number" min="0" step="1" value="${v(a.banheiros)}"></label>
             <label for="an-vagas" data-cat="comercial residencial">Vagas (0 = sem estacionamento)<input id="an-vagas" type="number" min="0" step="1" value="${v(a.vagas)}"></label>
@@ -504,7 +512,7 @@
       const dica = $('#an-preco-dica'), texto = $('#an-preco').value.trim(), valor = lerValor(texto);
       const periodo = $('#an-finalidade').value === 'alugar' ? '/' + $('#an-periodo').value : '';
       dica.textContent = $('#an-consulte').checked ? 'No site: Consulte'
-        : !texto ? '' : isNaN(valor) ? 'Valor não reconhecido. Escreva como 4.500 ou 1.250,50.' : `No site: R$ ${valorBr(valor)}${periodo}`;
+        : !texto ? '' : isNaN(valor) ? AVISO_VALOR : `No site: R$ ${valorBr(valor)}${periodo}`;
     };
     $('#an-preco').addEventListener('input', mostrarValor);
     $('#an-periodo').addEventListener('change', mostrarValor);
@@ -587,6 +595,8 @@
   async function salvarAnuncio(f, acao, antes) {
     const val = s => f.querySelector(s).value.trim();
     const numero = s => { const x = f.querySelector(s); return x.closest('label').hidden || x.value === '' ? null : Number(x.value); };
+    const medida = s => { const x = f.querySelector(s); return x.closest('label').hidden || !x.value.trim() ? null : lerValor(x.value); };
+    if ([medida('#an-area'), medida('#an-hectares')].some(m => m != null && isNaN(m))) return erroForm(f, 'Área não reconhecida. Escreva como 1.200 ou 48,5.');
     const codigo = val('#an-codigo').toUpperCase();
     erroForm(f, '');
     if (!val('#an-tipo') || !val('#an-titulo') || !codigo) return erroForm(f, 'Preencha o tipo, o nome do anúncio e a referência.');
@@ -594,7 +604,7 @@
     const consulte = f.querySelector('#an-consulte').checked;
     const preco = lerValor(val('#an-preco'));
     if (!consulte && !val('#an-preco')) return erroForm(f, 'Informe o valor ou marque "Mostrar Consulte".');
-    if (!consulte && isNaN(preco)) return erroForm(f, 'Valor não reconhecido. Escreva como 4.500 ou 1.250,50.');
+    if (!consulte && isNaN(preco)) return erroForm(f, AVISO_VALOR);
     // Envia as fotos novas, na ordem da tela
     const pasta = nomeArquivo(codigo);
     const novas = fotosForm.filter(x => !x.caminho).length;
@@ -612,7 +622,7 @@
       codigo, titulo: val('#an-titulo'), finalidade: val('#an-finalidade'), categoria: val('#an-categoria'), tipo: val('#an-tipo'),
       bairro: val('#an-bairro'), cidade: val('#an-cidade'), preco: consulte ? null : preco,
       periodo: val('#an-finalidade') === 'alugar' ? val('#an-periodo') : '',
-      area: numero('#an-area'), hectares: numero('#an-hectares'), quartos: numero('#an-quartos'), banheiros: numero('#an-banheiros'), vagas: numero('#an-vagas'),
+      area: medida('#an-area'), hectares: medida('#an-hectares'), quartos: numero('#an-quartos'), banheiros: numero('#an-banheiros'), vagas: numero('#an-vagas'),
       caracteristicas: linhasCarac(), descricao: val('#an-descricao'), fotos: caminhos, destaque: f.querySelector('#an-destaque').checked,
       situacao: acao === 'publicado' ? 'publicado' : (antes ? antes.situacao : 'rascunho')
     };
@@ -641,34 +651,35 @@
         <label for="vi-end">Endereço<input id="vi-end" placeholder="Ex.: Av. Rui Barbosa, 444 · Assis-SP" value="${esc(pre.end || '')}"></label>
         <label for="vi-rel">Situação<select id="vi-rel"><option value="aluguel">Alugado</option><option value="compra">Comprado</option><option value="processo">Em andamento (papelada)</option></select></label>
         <div data-rel="aluguel" class="form">
-          <div class="form__linha"><label for="vi-valor-a">Aluguel (R$)<input id="vi-valor-a" type="number" min="0" step="0.01"></label><label for="vi-periodo">Cobrança<select id="vi-periodo"><option value="mês">Mensal</option><option value="ano">Anual (arrendamento)</option></select></label></div>
+          <div class="form__linha"><label for="vi-valor-a">Aluguel (R$)${campoDinheiro('vi-valor-a')}</label><label for="vi-periodo">Cobrança<select id="vi-periodo"><option value="mês">Mensal</option><option value="ano">Anual (arrendamento)</option></select></label></div>
           <div class="form__linha"><label for="vi-dia-a">Dia do vencimento<input id="vi-dia-a" type="number" min="1" max="31" value="10"></label><label for="vi-inicio">Início do contrato<input id="vi-inicio" type="date"></label></div>
           <label for="vi-fim">Fim do contrato<input id="vi-fim" type="date"></label>
         </div>
         <div data-rel="compra" class="form" hidden>
-          <div class="form__linha"><label for="vi-valor-c">Valor do imóvel (R$)<input id="vi-valor-c" type="number" min="0" step="0.01"></label><label for="vi-parcelas">Parcelas (0 = à vista)<input id="vi-parcelas" type="number" min="0" value="0"></label></div>
-          <div class="form__linha"><label for="vi-parcela">Valor da parcela (R$)<input id="vi-parcela" type="number" min="0" step="0.01" value="0"></label><label for="vi-pagas">Parcelas já pagas<input id="vi-pagas" type="number" min="0" value="0"></label></div>
+          <div class="form__linha"><label for="vi-valor-c">Valor do imóvel (R$)${campoDinheiro('vi-valor-c')}</label><label for="vi-parcelas">Parcelas (0 = à vista)<input id="vi-parcelas" type="number" min="0" value="0"></label></div>
+          <div class="form__linha"><label for="vi-parcela">Valor da parcela (R$)${campoDinheiro('vi-parcela', 0)}</label><label for="vi-pagas">Parcelas já pagas<input id="vi-pagas" type="number" min="0" value="0"></label></div>
           <label for="vi-dia-c">Dia do vencimento<input id="vi-dia-c" type="number" min="1" max="31" value="10"></label>
         </div>
         <div data-rel="processo" class="form" hidden>
-          <div class="form__linha"><label for="vi-op">Operação<select id="vi-op"><option value="compra">Compra</option><option value="aluguel">Locação</option></select></label><label for="vi-valor-p">Valor negociado (R$)<input id="vi-valor-p" type="number" min="0" step="0.01"></label></div>
+          <div class="form__linha"><label for="vi-op">Operação<select id="vi-op"><option value="compra">Compra</option><option value="aluguel">Locação</option></select></label><label for="vi-valor-p">Valor negociado (R$)${campoDinheiro('vi-valor-p')}</label></div>
         </div>
         <p class="erro-msg" hidden></p><button class="btn" type="submit">Vincular</button></form>`);
     const mostrarRelacao = () => document.querySelectorAll('#form-vinculo [data-rel]').forEach(b => { b.hidden = b.dataset.rel !== $('#vi-rel').value; });
     $('#vi-rel').addEventListener('change', mostrarRelacao);
     if (pre.rel) { $('#vi-rel').value = pre.rel; mostrarRelacao(); }
-    if (pre.valor != null) { $('#vi-valor-a').value = pre.valor; $('#vi-valor-c').value = pre.valor; $('#vi-valor-p').value = pre.valor; }
+    if (pre.valor != null) ['#vi-valor-a', '#vi-valor-c', '#vi-valor-p'].forEach(s => { $(s).value = valorBr(pre.valor); });
     if (pre.periodo) $('#vi-periodo').value = pre.periodo;
     return aoEnviar('form-vinculo', async f => {
       const v = s => f.querySelector(s).value.trim(), n = s => Number(f.querySelector(s).value) || 0;
       const rel = v('#vi-rel');
       if (!v('#vi-cod') || !v('#vi-tipo') || !v('#vi-titulo')) return erroForm(f, 'Preencha código, tipo e nome do imóvel.');
+      if (temValorInvalido(f)) return erroForm(f, AVISO_VALOR);
       const base = { cliente_id: v('#vi-cliente'), codigo: v('#vi-cod').toUpperCase(), tipo: v('#vi-tipo'), titulo: v('#vi-titulo'), endereco: v('#vi-end') || null, relacao: rel };
       const extra = rel === 'aluguel'
-        ? { valor: n('#vi-valor-a'), periodo: v('#vi-periodo'), dia_vencimento: n('#vi-dia-a') || null, inicio: v('#vi-inicio') || null, fim: v('#vi-fim') || null }
+        ? { valor: dinheiro(f, '#vi-valor-a'), periodo: v('#vi-periodo'), dia_vencimento: n('#vi-dia-a') || null, inicio: v('#vi-inicio') || null, fim: v('#vi-fim') || null }
         : rel === 'compra'
-          ? { valor: n('#vi-valor-c'), parcelas: n('#vi-parcelas') || null, parcela: n('#vi-parcela') || null, parcelas_pagas: n('#vi-pagas'), dia_vencimento: n('#vi-dia-c') || null }
-          : { operacao: v('#vi-op'), valor: n('#vi-valor-p'), etapa: 0 };
+          ? { valor: dinheiro(f, '#vi-valor-c'), parcelas: n('#vi-parcelas') || null, parcela: dinheiro(f, '#vi-parcela') || null, parcelas_pagas: n('#vi-pagas'), dia_vencimento: n('#vi-dia-c') || null }
+          : { operacao: v('#vi-op'), valor: dinheiro(f, '#vi-valor-p'), etapa: 0 };
       const { error } = await db.from('imoveis_cliente').insert({ ...base, ...extra });
       if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? 'Já existe um imóvel de cliente com esse código.' : 'Não foi possível salvar: ' + error.message);
       fecharJanela(); estado.aba = 'imoveis'; await carregar(); render(); aviso(`${base.titulo} vinculado.`);
@@ -792,16 +803,17 @@
         return janela(`<h2>Concluir ${i.operacao === 'aluguel' ? 'locação' : 'compra'}</h2>
           <form class="form" id="form-concluir">
             ${i.operacao === 'aluguel'
-              ? `<div class="form__linha"><label for="cq-dia">Dia do vencimento<input id="cq-dia" type="number" min="1" max="31" value="10" required></label><label for="cq-valor">Aluguel (R$)<input id="cq-valor" type="number" min="0" step="0.01" value="${i.valor}" required></label></div>
+              ? `<div class="form__linha"><label for="cq-dia">Dia do vencimento<input id="cq-dia" type="number" min="1" max="31" value="10" required></label><label for="cq-valor">Aluguel (R$)${campoDinheiro('cq-valor', i.valor)}</label></div>
                  <div class="form__linha"><label for="cq-inicio">Início do contrato<input id="cq-inicio" type="date" required></label><label for="cq-fim">Fim do contrato<input id="cq-fim" type="date" required></label></div>`
-              : `<div class="form__linha"><label for="cq-valor">Valor do imóvel (R$)<input id="cq-valor" type="number" min="0" step="0.01" value="${i.valor}" required></label><label for="cq-parcelas">Número de parcelas (0 = à vista)<input id="cq-parcelas" type="number" min="0" value="0"></label></div>
-                 <div class="form__linha"><label for="cq-parcela">Valor da parcela (R$)<input id="cq-parcela" type="number" min="0" step="0.01" value="0"></label><label for="cq-dia">Dia do vencimento<input id="cq-dia" type="number" min="1" max="31" value="10"></label></div>`}
+              : `<div class="form__linha"><label for="cq-valor">Valor do imóvel (R$)${campoDinheiro('cq-valor', i.valor)}</label><label for="cq-parcelas">Número de parcelas (0 = à vista)<input id="cq-parcelas" type="number" min="0" value="0"></label></div>
+                 <div class="form__linha"><label for="cq-parcela">Valor da parcela (R$)${campoDinheiro('cq-parcela', 0)}</label><label for="cq-dia">Dia do vencimento<input id="cq-dia" type="number" min="1" max="31" value="10"></label></div>`}
             <p class="erro-msg" hidden></p>
             <button class="btn" type="submit">Concluir</button></form>`), aoEnviar('form-concluir', async f => {
               const v = s => f.querySelector(s)?.value;
+              if (temValorInvalido(f)) return erroForm(f, AVISO_VALOR);
               const dados = i.operacao === 'aluguel'
-                ? { relacao: 'aluguel', valor: Number(v('#cq-valor')), dia_vencimento: Number(v('#cq-dia')), inicio: v('#cq-inicio') || null, fim: v('#cq-fim') || null }
-                : { relacao: 'compra', valor: Number(v('#cq-valor')), parcelas: Number(v('#cq-parcelas')) || null, parcela: Number(v('#cq-parcela')) || null, dia_vencimento: Number(v('#cq-dia')) || null, parcelas_pagas: 0 };
+                ? { relacao: 'aluguel', valor: dinheiro(f, '#cq-valor'), dia_vencimento: Number(v('#cq-dia')), inicio: v('#cq-inicio') || null, fim: v('#cq-fim') || null }
+                : { relacao: 'compra', valor: dinheiro(f, '#cq-valor'), parcelas: Number(v('#cq-parcelas')) || null, parcela: dinheiro(f, '#cq-parcela') || null, dia_vencimento: Number(v('#cq-dia')) || null, parcelas_pagas: 0 };
               if (await salvar(db.from('imoveis_cliente').update(dados).eq('id', id), `${i.titulo}: ${i.operacao === 'aluguel' ? 'locação' : 'compra'} concluída.`)) fecharJanela();
             });
       case 'pendencias':
@@ -899,9 +911,10 @@
         return janela(`<h2>Lançar conta</h2>
           <form class="form" id="form-cobranca"><label for="co-imovel">Imóvel<select id="co-imovel">${imoveis.filter(x => x.relacao !== 'processo').map(x => `<option value="${x.id}">${esc(x.titulo)} · ${esc(cliente(x.cliente).nome)}</option>`).join('')}</select></label>
           <label for="co-desc">Descrição<input id="co-desc" placeholder="Ex.: Aluguel de dezembro" required></label>
-          <div class="form__linha"><label for="co-venc">Vencimento<input id="co-venc" type="date" required></label><label for="co-valor">Valor (R$)<input id="co-valor" type="number" min="0" step="0.01" required></label></div>
+          <div class="form__linha"><label for="co-venc">Vencimento<input id="co-venc" type="date" required></label><label for="co-valor">Valor (R$)${campoDinheiro('co-valor')}</label></div>
           <p class="erro-msg" hidden></p><button class="btn" type="submit">Lançar</button></form>`), aoEnviar('form-cobranca', async f => {
-            const desc = f.querySelector('#co-desc').value.trim(), venc = f.querySelector('#co-venc').value, valor = Number(f.querySelector('#co-valor').value);
+            const desc = f.querySelector('#co-desc').value.trim(), venc = f.querySelector('#co-venc').value, valor = dinheiro(f, '#co-valor');
+            if (temValorInvalido(f)) return erroForm(f, AVISO_VALOR);
             if (!desc || !venc || !valor) return erroForm(f, 'Preencha descrição, vencimento e valor.');
             if (await salvar(db.from('cobrancas').insert({ imovel_id: f.querySelector('#co-imovel').value, descricao: desc, vencimento: venc, valor }), 'Conta lançada.')) { fecharJanela(); estado.filtro = 'todas'; render(); }
           });
@@ -930,6 +943,12 @@
     }
   });
   let gerarMesPendente = [];
+  document.addEventListener('focusout', e => {
+    const campo = e.target.closest && e.target.closest('[data-dinheiro]');
+    if (!campo || !campo.value.trim()) return;
+    const valor = lerValor(campo.value);
+    if (!isNaN(valor)) campo.value = valorBr(valor);
+  });
 
   try {
     await carregar();
