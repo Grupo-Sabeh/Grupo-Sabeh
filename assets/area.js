@@ -5,6 +5,33 @@
   const { db, ADMIN, WHATSAPP } = window.SABEH;
   const ETAPAS = ['Proposta aceita', 'Documentação', 'Análise de crédito', 'Contrato', 'Assinatura e entrega das chaves'];
   const ARMAZEM = 'documentos';
+  const FOTOS = 'fotos-imoveis';
+
+  // Imóveis anunciados no site (aba "Imóveis no site" da administração)
+  const CATEGORIAS = { comercial: 'Comercial', residencial: 'Residencial', terreno: 'Lotes e terrenos', rural: 'Rural' };
+  const ORDEM_CATEGORIAS = ['comercial', 'residencial', 'terreno', 'rural'];
+  const TIPOS_SUGERIDOS = {
+    comercial: ['Sala comercial', 'Ponto comercial', 'Loja', 'Galpão', 'Prédio comercial'],
+    residencial: ['Casa', 'Apartamento', 'Sobrado'],
+    terreno: ['Lote', 'Terreno'],
+    rural: ['Área rural', 'Sítio', 'Fazenda']
+  };
+  // Sugestões de características por categoria: um clique adiciona "- Nome" na lista
+  const SUGESTOES = {
+    comercial: ['Mezanino', 'Banheiro', 'Estacionamento', 'Estoque', 'Esquina', 'Energia trifásica', 'Ar-condicionado', 'Copa', 'Recepção', 'Vitrine', 'Doca', 'Pé-direito alto', 'Portão para caminhão', 'Acessibilidade'],
+    residencial: ['Suíte', 'Área gourmet', 'Piscina', 'Quintal', 'Garagem coberta', 'Armários planejados', 'Portão eletrônico', 'Condomínio fechado'],
+    terreno: ['Esquina', 'Plano', 'Murado', 'Escriturado', 'Água e luz na rua', 'Rua asfaltada'],
+    rural: ['Terra mecanizável', 'Água (rio ou córrego)', 'Poço artesiano', 'Energia elétrica', 'Casa sede', 'Barracão', 'Curral', 'Acesso asfaltado']
+  };
+  const SITUACAO_SITE = { publicado: ['No site', 'selo--ok'], rascunho: ['Fora do site', 'selo--neutro'], alugado: ['Alugado', 'selo--info'], vendido: ['Vendido', 'selo--info'] };
+  const ICONES = {
+    comercial: '<path d="M4 12h24v15H4z"/><path d="M3 12 6 5h20l3 7"/><path d="M13 27v-7h6v7"/>',
+    residencial: '<path d="M4 14 16 5l12 9"/><path d="M7 12v15h18V12"/><path d="M13 27v-8h6v8"/>',
+    terreno: '<path d="M4 9h24v18H4z"/><path d="M4 18h24M13 9v18M21 18v9" stroke-dasharray="2 2"/>',
+    rural: '<path d="M3 27h26"/><path d="M16 27V11"/><path d="M16 17c-4 0-6-3-6-6 4 0 6 3 6 6zM16 14c4 0 6-3 6-6-4 0-6 3-6 6z"/><path d="M7 27v-6M25 27v-6"/>'
+  };
+  const icone = c => `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[c] || ICONES.comercial}</svg>`;
+  const MAX_FOTOS = 20;
 
   // ---------- Utilidades ----------
   const $ = s => document.querySelector(s);
@@ -24,7 +51,7 @@
   const mesAtual = () => hojeIso().slice(0, 7);
 
   // ---------- Dados ----------
-  let clientes = [], imoveis = [], cobrancas = [], documentos = [];
+  let clientes = [], imoveis = [], cobrancas = [], documentos = [], anuncios = [];
   const imovel = id => imoveis.find(i => i.id === id);
   const cliente = id => clientes.find(c => c.id === id) || { nome: '—', email: '', tel: '' };
   const doCliente = id => imoveis.filter(i => i.cliente === id);
@@ -32,13 +59,14 @@
   const atrasadasDe = id => cobrancasDe(id).filter(c => situacao(c) === 'atrasado');
 
   async function carregar() {
-    const [p, i, c, d] = await Promise.all([
+    const [p, i, c, d, s] = await Promise.all([
       db.from('perfis').select('*').order('nome'),
       db.from('imoveis_cliente').select('*').order('codigo'),
       db.from('cobrancas').select('*').order('vencimento'),
-      db.from('documentos').select('*').order('enviado_em', { ascending: false })
+      db.from('documentos').select('*').order('enviado_em', { ascending: false }),
+      souAdmin ? db.from('imoveis_site').select('*').order('codigo') : Promise.resolve({ data: [] })
     ]);
-    const erro = p.error || i.error || c.error || d.error;
+    const erro = p.error || i.error || c.error || d.error || s.error;
     if (erro) throw erro;
     clientes = p.data.filter(x => x.email !== ADMIN).map(x => ({ id: x.id, nome: x.nome, email: x.email, doc: x.documento || '—', tel: x.telefone || '—' }));
     imoveis = i.data.map(x => ({
@@ -48,7 +76,13 @@
     }));
     cobrancas = c.data.map(x => ({ id: x.id, imovel: x.imovel_id, desc: x.descricao, venc: x.vencimento, valor: Number(x.valor), pago: x.pago_em }));
     documentos = d.data.map(x => ({ id: x.id, imovel: x.imovel_id, nome: x.nome, tipo: x.tipo, arquivo: x.arquivo, data: x.enviado_em }));
+    const numero = v => v == null ? null : Number(v);
+    anuncios = s.data.map(x => ({
+      ...x, preco: numero(x.preco), area: numero(x.area), hectares: numero(x.hectares),
+      caracteristicas: x.caracteristicas || [], fotos: x.fotos || []
+    }));
   }
+  const urlFoto = caminho => db.storage.from(FOTOS).getPublicUrl(caminho).data.publicUrl;
 
   // ---------- Sessão ----------
   const { data: { session } } = await db.auth.getSession();
@@ -67,13 +101,13 @@
   // A tela da administração só aparece para a conta confirmada do administrador, depois do código (o banco também confere)
   const souAdmin = emailAdmin && duas.comCodigo;
 
-  const estado = { aba: 'resumo', verComo: null, filtro: 'todas', buscaCliente: '' };
+  const estado = { aba: 'resumo', verComo: null, filtro: 'todas', buscaCliente: '', filtroSite: 'todos', buscaSite: '' };
 
   function aviso(msg) {
     const el = $('#aviso'); el.textContent = msg; el.hidden = false;
     clearTimeout(aviso.t); aviso.t = setTimeout(() => { el.hidden = true; }, 3200);
   }
-  function janela(html) { $('#janela-conteudo').innerHTML = html; if (!$('#janela').open) $('#janela').showModal(); }
+  function janela(html, classe = '') { $('#janela').className = classe; $('#janela-conteudo').innerHTML = html; if (!$('#janela').open) $('#janela').showModal(); }
   function fecharJanela() { if ($('#janela').open) $('#janela').close(); }
   async function salvar(promessa, sucesso) {
     const { error } = await promessa;
@@ -248,6 +282,56 @@
       `<main class="conteudo faixa"><div class="miolo">${corpo}</div></main>`;
   }
 
+  // ---------- Imóveis no site (administração) ----------
+  const negocioDe = a => a.finalidade === 'comprar' ? 'vendido' : 'alugado';
+  const rotuloFinalidade = a => a.finalidade === 'comprar' ? 'Venda' : (a.categoria === 'rural' ? 'Arrendamento' : 'Locação');
+  const precoAnuncio = a => a.preco == null ? 'Consulte' : `${real(a.preco)}${a.periodo ? `<small>/${esc(a.periodo)}</small>` : ''}`;
+  const medidas = a => [a.area && `${a.area.toLocaleString('pt-BR')} m²`, a.hectares && `${a.hectares.toLocaleString('pt-BR')} ha`,
+    a.quartos && `${a.quartos} ${a.quartos === 1 ? 'quarto' : 'quartos'}`, a.banheiros && `${a.banheiros} ${a.banheiros === 1 ? 'banheiro' : 'banheiros'}`,
+    a.vagas && `${a.vagas} ${a.vagas === 1 ? 'vaga' : 'vagas'}`].filter(Boolean);
+
+  function linhaAnuncio(a) {
+    const [rotulo, cls] = SITUACAO_SITE[a.situacao];
+    const local = [a.bairro, a.cidade].filter(Boolean).join(' · ');
+    const med = medidas(a).slice(0, 2);
+    const carac = a.caracteristicas.length ? ' · ' + a.caracteristicas.slice(0, 3).map(esc).join(', ') + (a.caracteristicas.length > 3 ? ` e mais ${a.caracteristicas.length - 3}` : '') : '';
+    let botoes = `<button class="btn btn--linha btn--pequeno" data-acao="editar-anuncio" data-id="${a.id}">Editar</button>`;
+    if (a.situacao === 'publicado') botoes += `
+      <button class="btn btn--pequeno" data-acao="negocio-anuncio" data-id="${a.id}">Marcar como ${negocioDe(a)}</button>
+      <button class="btn btn--linha btn--pequeno" data-acao="tirar-anuncio" data-id="${a.id}">Tirar do site</button>
+      <a class="btn btn--linha btn--pequeno" href="index.html#imovel=${encodeURIComponent(a.codigo)}" target="_blank" rel="noopener">Ver no site</a>`;
+    else botoes += `
+      <button class="btn btn--pequeno" data-acao="publicar-anuncio" data-id="${a.id}">${a.situacao === 'rascunho' ? 'Publicar no site' : 'Anunciar de novo'}</button>
+      <button class="btn btn--linha btn--pequeno" data-acao="excluir-anuncio" data-id="${a.id}">Excluir</button>`;
+    return `<li class="anuncio${a.situacao === 'publicado' ? '' : ' anuncio--fora'}">
+      <div class="anuncio__foto cat-${esc(a.categoria)}"${a.fotos[0] ? ` style="background-image:url('${esc(urlFoto(a.fotos[0]))}')"` : ''}>${a.fotos[0] ? '' : icone(a.categoria)}</div>
+      <div class="anuncio__info"><span class="imovel__tipo">${esc(a.tipo)} · ${esc(a.codigo)}</span><b>${esc(a.titulo)}</b>
+        <small>${esc(local)}${med.length ? ' · ' + med.join(' · ') : ''}</small>
+        <small>${a.fotos.length ? `${a.fotos.length} ${a.fotos.length === 1 ? 'foto' : 'fotos'}` : 'Sem fotos'}${carac}</small></div>
+      <div class="anuncio__lado"><span class="anuncio__preco">${precoAnuncio(a)} <small>· ${rotuloFinalidade(a)}</small></span>
+        <span class="anuncio__selos">${a.destaque && a.situacao === 'publicado' ? '<span class="selo selo--info selo--estrela">Destaque</span>' : ''}<span class="selo ${cls}">${rotulo}</span></span></div>
+      <div class="acoes">${botoes}</div></li>`;
+  }
+
+  function telaAnuncios() {
+    const n = lista => anuncios.filter(a => lista.includes(a.situacao)).length;
+    const filtros = [['todos', `Todos (${anuncios.length})`], ['publicado', `No site (${n(['publicado'])})`], ['rascunho', `Fora do site (${n(['rascunho'])})`], ['negocio', `Alugados e vendidos (${n(['alugado', 'vendido'])})`]];
+    const termo = estado.buscaSite.trim().toLowerCase();
+    const ordem = { publicado: 0, rascunho: 1, alugado: 2, vendido: 2 };
+    const lista = anuncios
+      .filter(a => estado.filtroSite === 'todos' || (estado.filtroSite === 'negocio' ? ['alugado', 'vendido'].includes(a.situacao) : a.situacao === estado.filtroSite))
+      .filter(a => !termo || [a.codigo, a.titulo, a.tipo, a.bairro, ...a.caracteristicas].join(' ').toLowerCase().includes(termo))
+      .sort((a, b) => ordem[a.situacao] - ordem[b.situacao] || b.destaque - a.destaque || a.codigo.localeCompare(b.codigo, 'pt-BR', { numeric: true }));
+    return `<div class="titulo-pagina"><div><h1>Imóveis no site</h1><p>O que você cadastrar aqui aparece na busca do site. Alugou ou vendeu? Marque aqui e ele sai do site na hora.</p></div>
+        <button class="btn" data-acao="novo-anuncio">+ Cadastrar imóvel</button></div>
+      <section class="painel"><div class="painel__topo">
+        <div class="filtros" role="group" aria-label="Filtrar">${filtros.map(([id, r]) => `<button data-filtro-site="${id}" aria-pressed="${estado.filtroSite === id}">${r}</button>`).join('')}</div>
+        <input class="busca-campo" id="busca-anuncio" type="search" placeholder="Código, nome ou bairro" value="${esc(estado.buscaSite)}"></div>
+        ${lista.length ? `<ul class="anuncios">${lista.map(linhaAnuncio).join('')}</ul>`
+          : `<p class="vazio">${anuncios.length ? 'Nenhum imóvel aqui.' : 'Nenhum imóvel cadastrado ainda. Clique em "Cadastrar imóvel" para colocar o primeiro no site.'}</p>`}
+      </section>`;
+  }
+
   // ---------- Área do administrador ----------
   function telaAdmin() {
     const atrasadas = cobrancas.filter(c => situacao(c) === 'atrasado');
@@ -259,7 +343,13 @@
     const nVendidos = imoveis.filter(i => i.relacao === 'compra').length;
     let corpo = '';
     if (estado.aba === 'resumo') {
+      const noSite = anuncios.filter(a => a.situacao === 'publicado');
       corpo = `<div class="titulo-pagina"><div><h1>Painel da administração</h1><p>Situação de todos os clientes e imóveis do Grupo Sabeh.</p></div></div>
+        <section class="painel"><div class="painel__topo"><h2>Imóveis no site</h2><button class="btn btn--linha btn--pequeno" data-aba="site">Gerenciar</button></div>
+          <div class="dados dados--4"><div><small>No site</small><b>${noSite.length}</b></div>
+          <div><small>Para alugar · à venda</small><b>${noSite.filter(a => a.finalidade === 'alugar').length} · ${noSite.filter(a => a.finalidade === 'comprar').length}</b></div>
+          <div><small>Fora do site</small><b>${anuncios.filter(a => a.situacao === 'rascunho').length}</b></div>
+          <div><small>Alugados e vendidos</small><b>${anuncios.filter(a => ['alugado', 'vendido'].includes(a.situacao)).length}</b></div></div></section>
         <div class="grade grade--4">
           <div class="numero"><small>Clientes</small><strong>${clientes.length}</strong><span>com acesso à área</span></div>
           <div class="numero"><small>Imóveis vinculados</small><strong>${imoveis.length}</strong><span>${imoveis.filter(i => i.relacao === 'aluguel').length} alugados · ${nVendidos} ${nVendidos === 1 ? 'vendido' : 'vendidos'}</span></div>
@@ -294,6 +384,8 @@
       corpo = `<div class="titulo-pagina"><div><h1>Contas a receber</h1><p>Aluguéis, parcelas e arrendamentos de todos os clientes.</p></div>${imoveis.some(i => i.relacao !== 'processo') ? '<div class="acoes"><button class="btn btn--linha" data-acao="gerar-mes">Lançar contas do mês</button><button class="btn" data-acao="nova-cobranca">+ Lançar conta</button></div>' : ''}</div>
         <section class="painel"><div class="painel__topo"><div class="filtros" role="group" aria-label="Filtrar">${filtros.map(([id, r]) => `<button data-filtro="${id}" aria-pressed="${estado.filtro === id}">${r}</button>`).join('')}</div></div>
         ${tabelaCobrancas(lista, true)}</section>`;
+    } else if (estado.aba === 'site') {
+      corpo = telaAnuncios();
     } else if (estado.aba === 'seguranca') {
       corpo = `<div class="titulo-pagina"><div><h1>Segurança</h1><p>Como a conta de administrador confirma a entrada.</p></div></div>${secaoSeguranca()}`;
     } else if (estado.aba === 'processos') {
@@ -301,17 +393,19 @@
         ${proc.length ? `<div class="grade grade--2">${proc.map(i => cartaoImovel(i, true)).join('')}</div>` : '<p class="vazio">Nenhum processo em andamento.</p>'}`;
     }
     return topo('Administração', 'Grupo Sabeh', ADMIN) +
-      abas([['resumo', 'Painel'], ['clientes', 'Clientes'], ['imoveis', 'Imóveis'], ['cobrancas', 'Contas a receber', atrasadas.length], ['processos', 'Processos'], ['seguranca', 'Segurança']]) +
+      abas([['resumo', 'Painel'], ['site', 'Imóveis no site'], ['clientes', 'Clientes'], ['imoveis', 'Imóveis de clientes'], ['cobrancas', 'Contas a receber', atrasadas.length], ['processos', 'Processos'], ['seguranca', 'Segurança']]) +
       `<main class="conteudo faixa"><div class="miolo">${corpo}</div></main>`;
   }
 
   // ---------- Desenho da tela ----------
   function render() {
     $('#app').innerHTML = souAdmin && !estado.verComo ? telaAdmin() : telaCliente(estado.verComo);
-    const busca = $('#busca-cliente');
-    if (busca) busca.addEventListener('input', e => {
-      estado.buscaCliente = e.target.value; const pos = e.target.selectionStart; render();
-      const b = $('#busca-cliente'); b.focus(); b.setSelectionRange(pos, pos);
+    [['#busca-cliente', 'buscaCliente'], ['#busca-anuncio', 'buscaSite']].forEach(([sel, chave]) => {
+      const busca = $(sel);
+      if (busca) busca.addEventListener('input', e => {
+        estado[chave] = e.target.value; const pos = e.target.selectionStart; render();
+        const b = $(sel); b.focus(); b.setSelectionRange(pos, pos);
+      });
     });
   }
 
@@ -328,15 +422,263 @@
   const erroForm = (f, msg) => { const p = f.querySelector('.erro-msg'); p.textContent = msg; p.hidden = !msg; };
   const nomeArquivo = n => n.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w.-]+/g, '-').slice(-80);
 
+  // ----- Cadastro de imóvel do site -----
+  // fotosForm: fotos na ordem da tela ({ caminho } já guardada, ou { arquivo } nova, sempre com { url } para mostrar)
+  let fotosForm = [], fotosPendentes = [];
+  function proximoCodigo() {
+    const maior = Math.max(0, ...anuncios.map(a => Number((a.codigo.match(/(\d+)$/) || [])[1]) || 0));
+    return 'SB-' + String(maior + 1).padStart(3, '0');
+  }
+  function formAnuncio(a) {
+    const novo = !a;
+    a = a || { codigo: proximoCodigo(), titulo: '', finalidade: 'alugar', categoria: 'comercial', tipo: '', bairro: '', cidade: 'Assis', preco: null, periodo: 'mês',
+      area: null, hectares: null, quartos: null, banheiros: null, vagas: null, caracteristicas: [], descricao: '', fotos: [], destaque: false, situacao: 'rascunho' };
+    fotosForm = a.fotos.map(c => ({ caminho: c, url: urlFoto(c) }));
+    fotosPendentes = [];
+    const v = x => x == null ? '' : esc(x);
+    const sel = (atual, valor) => atual === valor ? ' selected' : '';
+    janela(`<h2>${novo ? 'Cadastrar imóvel' : 'Editar ' + esc(a.codigo)}</h2>
+      <form class="form" id="form-anuncio" novalidate>
+        <fieldset><legend>Fotos</legend><div class="fotos" id="fotos"></div>
+          <p class="nota">A primeira foto é a capa do anúncio. Use as setas para mudar a ordem. Fotos grandes são reduzidas antes de enviar, para o site carregar rápido.</p></fieldset>
+        <fieldset><legend>O imóvel</legend>
+          <div class="form__linha form__linha--3">
+            <label for="an-finalidade">Para<select id="an-finalidade"><option value="alugar"${sel(a.finalidade, 'alugar')}>Alugar</option><option value="comprar"${sel(a.finalidade, 'comprar')}>Vender</option></select></label>
+            <label for="an-categoria">Categoria<select id="an-categoria">${ORDEM_CATEGORIAS.map(c => `<option value="${c}"${sel(a.categoria, c)}>${CATEGORIAS[c]}</option>`).join('')}</select></label>
+            <label for="an-tipo">Tipo<input id="an-tipo" list="an-tipos" value="${v(a.tipo)}" placeholder="Ex.: Sala comercial" required><datalist id="an-tipos"></datalist></label>
+          </div>
+          <label for="an-titulo">Nome do anúncio<input id="an-titulo" value="${v(a.titulo)}" placeholder="Ex.: Sala comercial no Centro" maxlength="70" required></label>
+          <div class="form__linha form__linha--3">
+            <label for="an-codigo">Código<input id="an-codigo" value="${v(a.codigo)}" maxlength="20" required></label>
+            <label for="an-bairro">Bairro ou região<input id="an-bairro" value="${v(a.bairro)}" placeholder="Ex.: Centro"></label>
+            <label for="an-cidade">Cidade<input id="an-cidade" value="${v(a.cidade)}"></label>
+          </div></fieldset>
+        <fieldset><legend>Valor</legend>
+          <div class="form__linha form__linha--3">
+            <label for="an-preco">Valor (R$)<input id="an-preco" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.preco)}"></label>
+            <label for="an-periodo" data-so-aluguel>Cobrança<select id="an-periodo"><option value="mês"${a.periodo !== 'ano' ? ' selected' : ''}>Por mês</option><option value="ano"${sel(a.periodo, 'ano')}>Por ano</option></select></label>
+            <label class="marcar" for="an-consulte"><input id="an-consulte" type="checkbox"${a.preco == null && !novo ? ' checked' : ''}> Mostrar "Consulte" no lugar do valor</label>
+          </div></fieldset>
+        <fieldset><legend>Medidas</legend>
+          <div class="form__linha form__linha--3">
+            <label for="an-area" data-cat="comercial residencial terreno">Área (m²)<input id="an-area" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.area)}"></label>
+            <label for="an-hectares" data-cat="rural">Área (hectares)<input id="an-hectares" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.hectares)}"></label>
+            <label for="an-quartos" data-cat="residencial">Quartos<input id="an-quartos" type="number" min="0" step="1" value="${v(a.quartos)}"></label>
+            <label for="an-banheiros" data-cat="comercial residencial">Banheiros<input id="an-banheiros" type="number" min="0" step="1" value="${v(a.banheiros)}"></label>
+            <label for="an-vagas" data-cat="comercial residencial">Vagas<input id="an-vagas" type="number" min="0" step="1" value="${v(a.vagas)}"></label>
+          </div></fieldset>
+        <fieldset><legend>Características</legend>
+          <div class="sugestoes" id="sugestoes" role="group" aria-label="Sugestões de características"></div>
+          <label for="an-carac">Uma por linha, com um traço na frente. No site, cada linha vira um item com ✓.<textarea id="an-carac" placeholder="- Mezanino de 40 m²&#10;- Energia trifásica&#10;- Esquina">${esc(a.caracteristicas.map(c => '- ' + c).join('\n'))}</textarea></label>
+          <p class="nota">Clique numa sugestão para adicionar ou tirar. Também dá para escrever do seu jeito: o Enter já começa a linha seguinte com o traço. Pode detalhar, como "Mezanino de 40 m²" ou "2 banheiros, um adaptado". No site aparece só o que estiver escrito aqui.</p>
+        </fieldset>
+        <label for="an-descricao">Descrição<textarea id="an-descricao" placeholder="Um texto curto sobre o imóvel: para quem serve, localização, estado de conservação.">${esc(a.descricao)}</textarea></label>
+        <label class="marcar" for="an-destaque"><input id="an-destaque" type="checkbox"${a.destaque ? ' checked' : ''}> Destaque: aparece primeiro na lista do site</label>
+        <p class="erro-msg" hidden></p>
+        <div class="botoes-form">${a.situacao === 'publicado'
+          ? '<button class="btn" type="submit" value="publicado">Salvar</button>'
+          : '<button class="btn" type="submit" value="publicado">Salvar e publicar no site</button><button class="btn btn--linha" type="submit" value="manter">Salvar sem publicar</button>'}</div>
+      </form>`, 'janela--larga');
+    desenharFotos();
+    let categoria = a.categoria;
+    const ajustar = () => {
+      const cat = $('#an-categoria').value;
+      document.querySelectorAll('#form-anuncio [data-cat]').forEach(l => { l.hidden = !l.dataset.cat.split(' ').includes(cat); });
+      $('#form-anuncio [data-so-aluguel]').hidden = $('#an-finalidade').value !== 'alugar';
+      $('#an-tipos').innerHTML = TIPOS_SUGERIDOS[cat].map(t => `<option value="${t}">`).join('');
+      $('#an-preco').disabled = $('#an-consulte').checked;
+      desenharSugestoes();
+    };
+    $('#an-categoria').addEventListener('change', () => {
+      if ($('#an-categoria').value !== categoria) $('#an-periodo').value = $('#an-categoria').value === 'rural' ? 'ano' : 'mês';
+      categoria = $('#an-categoria').value; ajustar();
+    });
+    $('#an-finalidade').addEventListener('change', ajustar);
+    $('#an-consulte').addEventListener('change', ajustar);
+    const carac = $('#an-carac');
+    carac.addEventListener('input', desenharSugestoes);
+    // Enter começa a próxima linha já com o traço; o campo vazio já começa com o traço
+    carac.addEventListener('keydown', ev => {
+      if (ev.key !== 'Enter' || ev.shiftKey || ev.isComposing) return;
+      ev.preventDefault();
+      carac.setRangeText('\n- ', carac.selectionStart, carac.selectionEnd, 'end');
+      desenharSugestoes();
+    });
+    carac.addEventListener('focus', () => { if (!carac.value) carac.value = '- '; });
+    ajustar();
+    const form = $('#form-anuncio');
+    form.addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const botoes = form.querySelectorAll('[type=submit]');
+      botoes.forEach(b => { b.disabled = true; });
+      try { await salvarAnuncio(form, ev.submitter ? ev.submitter.value : 'manter', novo ? null : a); }
+      finally { botoes.forEach(b => { b.disabled = false; }); }
+    });
+  }
+
+  // Lista de características escrita no campo (uma por linha, sem o traço e sem linhas vazias)
+  const linhasCarac = () => $('#an-carac').value.split('\n').map(s => s.replace(/^[\s•*\->]+/, '').trim()).filter(Boolean);
+  function desenharSugestoes() {
+    const atuais = linhasCarac().map(s => s.toLowerCase());
+    $('#sugestoes').innerHTML = SUGESTOES[$('#an-categoria').value].map(s =>
+      `<button type="button" data-sugestao="${esc(s)}" aria-pressed="${atuais.includes(s.toLowerCase())}">${esc(s)}</button>`).join('');
+  }
+
+  function desenharFotos() {
+    $('#fotos').innerHTML = fotosForm.map((f, n) => `<div class="foto" style="background-image:url('${esc(f.url)}')">
+        ${n === 0 ? '<span class="foto__capa">Capa</span>' : ''}
+        <div class="foto__botoes">
+          ${n > 0 ? `<button type="button" data-foto="antes" data-n="${n}" aria-label="Mover a foto ${n + 1} para antes">←</button>` : ''}
+          ${n < fotosForm.length - 1 ? `<button type="button" data-foto="depois" data-n="${n}" aria-label="Mover a foto ${n + 1} para depois">→</button>` : ''}
+          <button type="button" data-foto="tirar" data-n="${n}" aria-label="Remover a foto ${n + 1}">×</button>
+        </div></div>`).join('') +
+      (fotosForm.length < MAX_FOTOS ? `<label class="foto foto--add" for="an-fotos">+ Adicionar fotos<input id="an-fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>` : '');
+    const entrada = $('#an-fotos');
+    if (entrada) entrada.addEventListener('change', async e => {
+      const arquivos = [...e.target.files].slice(0, MAX_FOTOS - fotosForm.length);
+      $('#fotos').insertAdjacentHTML('beforeend', '<p class="vazio">Preparando as fotos…</p>');
+      let falhas = 0;
+      for (const arq of arquivos) {
+        try { const arquivo = await reduzirFoto(arq); fotosForm.push({ arquivo, url: URL.createObjectURL(arquivo) }); } catch (_) { falhas++; }
+      }
+      desenharFotos();
+      if (falhas) aviso(falhas === 1 ? 'Uma foto não pôde ser lida. Use JPG, PNG ou WEBP.' : `${falhas} fotos não puderam ser lidas. Use JPG, PNG ou WEBP.`);
+    });
+  }
+
+  // Reduz a foto para no máximo 1600 px no lado maior, em JPG
+  function reduzirFoto(arq) {
+    return new Promise((ok, falha) => {
+      const url = URL.createObjectURL(arq), img = new Image();
+      img.onload = () => {
+        const escala = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        const tela = document.createElement('canvas');
+        tela.width = Math.round(img.naturalWidth * escala); tela.height = Math.round(img.naturalHeight * escala);
+        const ctx = tela.getContext('2d');
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, tela.width, tela.height);
+        ctx.drawImage(img, 0, 0, tela.width, tela.height);
+        URL.revokeObjectURL(url);
+        tela.toBlob(b => b ? ok(b) : falha(new Error('foto')), 'image/jpeg', 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); falha(new Error('foto')); };
+      img.src = url;
+    });
+  }
+
+  async function salvarAnuncio(f, acao, antes) {
+    const val = s => f.querySelector(s).value.trim();
+    const numero = s => { const x = f.querySelector(s); return x.closest('label').hidden || x.value === '' ? null : Number(x.value); };
+    const codigo = val('#an-codigo').toUpperCase();
+    erroForm(f, '');
+    if (!val('#an-tipo') || !val('#an-titulo') || !codigo) return erroForm(f, 'Preencha o tipo, o nome do anúncio e o código.');
+    if (anuncios.some(a => a.codigo === codigo && (!antes || a.id !== antes.id))) return erroForm(f, `Já existe um imóvel com o código ${codigo}.`);
+    const consulte = f.querySelector('#an-consulte').checked;
+    if (!consulte && f.querySelector('#an-preco').value === '') return erroForm(f, 'Informe o valor ou marque "Mostrar Consulte".');
+    // Envia as fotos novas, na ordem da tela
+    const pasta = nomeArquivo(codigo);
+    const novas = fotosForm.filter(x => !x.caminho).length;
+    let enviadas = 0;
+    for (const [n, foto] of fotosForm.entries()) {
+      if (foto.caminho) continue;
+      aviso(`Enviando foto ${++enviadas} de ${novas}…`);
+      const caminho = `${pasta}/${Date.now()}-${n + 1}.jpg`;
+      const envio = await db.storage.from(FOTOS).upload(caminho, foto.arquivo, { contentType: 'image/jpeg', cacheControl: '31536000' });
+      if (envio.error) return erroForm(f, `Não foi possível enviar a foto ${n + 1}: ${envio.error.message}`);
+      foto.caminho = caminho; fotosPendentes.push(caminho);
+    }
+    const caminhos = fotosForm.map(x => x.caminho);
+    const dados = {
+      codigo, titulo: val('#an-titulo'), finalidade: val('#an-finalidade'), categoria: val('#an-categoria'), tipo: val('#an-tipo'),
+      bairro: val('#an-bairro'), cidade: val('#an-cidade'), preco: consulte ? null : Number(f.querySelector('#an-preco').value),
+      periodo: val('#an-finalidade') === 'alugar' ? val('#an-periodo') : '',
+      area: numero('#an-area'), hectares: numero('#an-hectares'), quartos: numero('#an-quartos'), banheiros: numero('#an-banheiros'), vagas: numero('#an-vagas'),
+      caracteristicas: linhasCarac(), descricao: val('#an-descricao'), fotos: caminhos, destaque: f.querySelector('#an-destaque').checked,
+      situacao: acao === 'publicado' ? 'publicado' : (antes ? antes.situacao : 'rascunho')
+    };
+    const { error } = antes ? await db.from('imoveis_site').update(dados).eq('id', antes.id) : await db.from('imoveis_site').insert(dados);
+    if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? `Já existe um imóvel com o código ${codigo}.` : 'Não foi possível salvar: ' + error.message);
+    fotosPendentes = [];
+    // Fotos tiradas do anúncio saem também do armazenamento
+    const removidas = antes ? antes.fotos.filter(c => !caminhos.includes(c)) : [];
+    if (removidas.length) await db.storage.from(FOTOS).remove(removidas);
+    fecharJanela(); estado.aba = 'site'; await carregar(); render();
+    aviso(dados.situacao === 'publicado' ? `${codigo} salvo e publicado. Já aparece na busca do site.` : `${codigo} salvo, fora do site.`);
+  }
+
+  // Fotos enviadas de um cadastro que foi fechado sem salvar não ficam ocupando espaço
+  $('#janela').addEventListener('close', () => {
+    if (fotosPendentes.length) { db.storage.from(FOTOS).remove(fotosPendentes); fotosPendentes = []; }
+  });
+
+  // ----- Vincular imóvel a cliente (também usado ao marcar um imóvel do site como alugado/vendido) -----
+  function formVincular(pre = {}) {
+    janela(`<h2>Vincular imóvel a cliente</h2>
+      <form class="form" id="form-vinculo">
+        <label for="vi-cliente">Cliente<select id="vi-cliente">${opcoesClientes()}</select></label>
+        <div class="form__linha"><label for="vi-cod">Código do imóvel<input id="vi-cod" placeholder="Ex.: SB-101" value="${esc(pre.cod || '')}" required></label><label for="vi-tipo">Tipo<input id="vi-tipo" placeholder="Ex.: Sala comercial" value="${esc(pre.tipo || '')}" required></label></div>
+        <label for="vi-titulo">Nome do imóvel<input id="vi-titulo" placeholder="Ex.: Sala 4 · Centro" value="${esc(pre.titulo || '')}" required></label>
+        <label for="vi-end">Endereço<input id="vi-end" placeholder="Ex.: Av. Rui Barbosa, 444 · Assis-SP" value="${esc(pre.end || '')}"></label>
+        <label for="vi-rel">Situação<select id="vi-rel"><option value="aluguel">Alugado</option><option value="compra">Comprado</option><option value="processo">Em andamento (papelada)</option></select></label>
+        <div data-rel="aluguel" class="form">
+          <div class="form__linha"><label for="vi-valor-a">Aluguel (R$)<input id="vi-valor-a" type="number" min="0" step="0.01"></label><label for="vi-periodo">Cobrança<select id="vi-periodo"><option value="mês">Mensal</option><option value="ano">Anual (arrendamento)</option></select></label></div>
+          <div class="form__linha"><label for="vi-dia-a">Dia do vencimento<input id="vi-dia-a" type="number" min="1" max="31" value="10"></label><label for="vi-inicio">Início do contrato<input id="vi-inicio" type="date"></label></div>
+          <label for="vi-fim">Fim do contrato<input id="vi-fim" type="date"></label>
+        </div>
+        <div data-rel="compra" class="form" hidden>
+          <div class="form__linha"><label for="vi-valor-c">Valor do imóvel (R$)<input id="vi-valor-c" type="number" min="0" step="0.01"></label><label for="vi-parcelas">Parcelas (0 = à vista)<input id="vi-parcelas" type="number" min="0" value="0"></label></div>
+          <div class="form__linha"><label for="vi-parcela">Valor da parcela (R$)<input id="vi-parcela" type="number" min="0" step="0.01" value="0"></label><label for="vi-pagas">Parcelas já pagas<input id="vi-pagas" type="number" min="0" value="0"></label></div>
+          <label for="vi-dia-c">Dia do vencimento<input id="vi-dia-c" type="number" min="1" max="31" value="10"></label>
+        </div>
+        <div data-rel="processo" class="form" hidden>
+          <div class="form__linha"><label for="vi-op">Operação<select id="vi-op"><option value="compra">Compra</option><option value="aluguel">Locação</option></select></label><label for="vi-valor-p">Valor negociado (R$)<input id="vi-valor-p" type="number" min="0" step="0.01"></label></div>
+        </div>
+        <p class="erro-msg" hidden></p><button class="btn" type="submit">Vincular</button></form>`);
+    const mostrarRelacao = () => document.querySelectorAll('#form-vinculo [data-rel]').forEach(b => { b.hidden = b.dataset.rel !== $('#vi-rel').value; });
+    $('#vi-rel').addEventListener('change', mostrarRelacao);
+    if (pre.rel) { $('#vi-rel').value = pre.rel; mostrarRelacao(); }
+    if (pre.valor != null) { $('#vi-valor-a').value = pre.valor; $('#vi-valor-c').value = pre.valor; $('#vi-valor-p').value = pre.valor; }
+    if (pre.periodo) $('#vi-periodo').value = pre.periodo;
+    return aoEnviar('form-vinculo', async f => {
+      const v = s => f.querySelector(s).value.trim(), n = s => Number(f.querySelector(s).value) || 0;
+      const rel = v('#vi-rel');
+      if (!v('#vi-cod') || !v('#vi-tipo') || !v('#vi-titulo')) return erroForm(f, 'Preencha código, tipo e nome do imóvel.');
+      const base = { cliente_id: v('#vi-cliente'), codigo: v('#vi-cod').toUpperCase(), tipo: v('#vi-tipo'), titulo: v('#vi-titulo'), endereco: v('#vi-end') || null, relacao: rel };
+      const extra = rel === 'aluguel'
+        ? { valor: n('#vi-valor-a'), periodo: v('#vi-periodo'), dia_vencimento: n('#vi-dia-a') || null, inicio: v('#vi-inicio') || null, fim: v('#vi-fim') || null }
+        : rel === 'compra'
+          ? { valor: n('#vi-valor-c'), parcelas: n('#vi-parcelas') || null, parcela: n('#vi-parcela') || null, parcelas_pagas: n('#vi-pagas'), dia_vencimento: n('#vi-dia-c') || null }
+          : { operacao: v('#vi-op'), valor: n('#vi-valor-p'), etapa: 0 };
+      const { error } = await db.from('imoveis_cliente').insert({ ...base, ...extra });
+      if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? 'Já existe um imóvel de cliente com esse código.' : 'Não foi possível salvar: ' + error.message);
+      fecharJanela(); estado.aba = 'imoveis'; await carregar(); render(); aviso(`${base.titulo} vinculado.`);
+    });
+  }
+
   // ---------- Ações ----------
   document.addEventListener('click', async e => {
-    const alvo = e.target.closest('[data-acao], [data-aba], [data-filtro], [data-fechar]');
+    // Botões dentro do cadastro de imóvel do site: ordem das fotos e sugestões de características
+    const foto = e.target.closest('[data-foto]');
+    if (foto) {
+      const n = Number(foto.dataset.n);
+      if (foto.dataset.foto === 'tirar') fotosForm.splice(n, 1);
+      else { const m = foto.dataset.foto === 'antes' ? n - 1 : n + 1; [fotosForm[n], fotosForm[m]] = [fotosForm[m], fotosForm[n]]; }
+      return desenharFotos();
+    }
+    const sugestao = e.target.closest('[data-sugestao]');
+    if (sugestao) {
+      const nome = sugestao.dataset.sugestao, linhas = linhasCarac();
+      const resto = linhas.filter(s => s.toLowerCase() !== nome.toLowerCase());
+      $('#an-carac').value = (resto.length === linhas.length ? [...linhas, nome] : resto).map(s => '- ' + s).join('\n');
+      return desenharSugestoes();
+    }
+    const alvo = e.target.closest('[data-acao], [data-aba], [data-filtro], [data-filtro-site], [data-fechar]');
     if (!alvo) return;
     if (alvo.dataset.fechar !== undefined) return fecharJanela();
     if (alvo.dataset.aba) { estado.aba = alvo.dataset.aba; if (alvo.dataset.filtro) estado.filtro = alvo.dataset.filtro; render(); return; }
     if (alvo.dataset.filtro && !alvo.dataset.acao) { estado.filtro = alvo.dataset.filtro; render(); return; }
+    if (alvo.dataset.filtroSite) { estado.filtroSite = alvo.dataset.filtroSite; render(); return; }
     const id = alvo.dataset.id;
-    const c = cobrancas.find(x => x.id === id), i = imovel(id);
+    const c = cobrancas.find(x => x.id === id), i = imovel(id), an = anuncios.find(x => x.id === id);
     switch (alvo.dataset.acao) {
       case 'sair': await db.auth.signOut(); return location.replace('entrar.html');
       case 'ver-como': Object.assign(estado, { verComo: id, aba: 'resumo' }); render(); return window.scrollTo(0, 0);
@@ -494,42 +836,44 @@
           });
       }
       case 'vincular':
-        janela(`<h2>Vincular imóvel a cliente</h2>
-          <form class="form" id="form-vinculo">
-            <label for="vi-cliente">Cliente<select id="vi-cliente">${opcoesClientes()}</select></label>
-            <div class="form__linha"><label for="vi-cod">Código do imóvel<input id="vi-cod" placeholder="Ex.: SB-101" required></label><label for="vi-tipo">Tipo<input id="vi-tipo" placeholder="Ex.: Sala comercial" required></label></div>
-            <label for="vi-titulo">Nome do imóvel<input id="vi-titulo" placeholder="Ex.: Sala 4 · Centro" required></label>
-            <label for="vi-end">Endereço<input id="vi-end" placeholder="Ex.: Av. Rui Barbosa, 444 · Assis-SP"></label>
-            <label for="vi-rel">Situação<select id="vi-rel"><option value="aluguel">Alugado</option><option value="compra">Comprado</option><option value="processo">Em andamento (papelada)</option></select></label>
-            <div data-rel="aluguel" class="form">
-              <div class="form__linha"><label for="vi-valor-a">Aluguel (R$)<input id="vi-valor-a" type="number" min="0" step="0.01"></label><label for="vi-periodo">Cobrança<select id="vi-periodo"><option value="mês">Mensal</option><option value="ano">Anual (arrendamento)</option></select></label></div>
-              <div class="form__linha"><label for="vi-dia-a">Dia do vencimento<input id="vi-dia-a" type="number" min="1" max="31" value="10"></label><label for="vi-inicio">Início do contrato<input id="vi-inicio" type="date"></label></div>
-              <label for="vi-fim">Fim do contrato<input id="vi-fim" type="date"></label>
-            </div>
-            <div data-rel="compra" class="form" hidden>
-              <div class="form__linha"><label for="vi-valor-c">Valor do imóvel (R$)<input id="vi-valor-c" type="number" min="0" step="0.01"></label><label for="vi-parcelas">Parcelas (0 = à vista)<input id="vi-parcelas" type="number" min="0" value="0"></label></div>
-              <div class="form__linha"><label for="vi-parcela">Valor da parcela (R$)<input id="vi-parcela" type="number" min="0" step="0.01" value="0"></label><label for="vi-pagas">Parcelas já pagas<input id="vi-pagas" type="number" min="0" value="0"></label></div>
-              <label for="vi-dia-c">Dia do vencimento<input id="vi-dia-c" type="number" min="1" max="31" value="10"></label>
-            </div>
-            <div data-rel="processo" class="form" hidden>
-              <div class="form__linha"><label for="vi-op">Operação<select id="vi-op"><option value="compra">Compra</option><option value="aluguel">Locação</option></select></label><label for="vi-valor-p">Valor negociado (R$)<input id="vi-valor-p" type="number" min="0" step="0.01"></label></div>
-            </div>
-            <p class="erro-msg" hidden></p><button class="btn" type="submit">Vincular</button></form>`);
-        $('#vi-rel').addEventListener('change', ev => document.querySelectorAll('#form-vinculo [data-rel]').forEach(b => { b.hidden = b.dataset.rel !== ev.target.value; }));
-        return aoEnviar('form-vinculo', async f => {
-          const v = s => f.querySelector(s).value.trim(), n = s => Number(f.querySelector(s).value) || 0;
-          const rel = v('#vi-rel');
-          if (!v('#vi-cod') || !v('#vi-tipo') || !v('#vi-titulo')) return erroForm(f, 'Preencha código, tipo e nome do imóvel.');
-          const base = { cliente_id: v('#vi-cliente'), codigo: v('#vi-cod').toUpperCase(), tipo: v('#vi-tipo'), titulo: v('#vi-titulo'), endereco: v('#vi-end') || null, relacao: rel };
-          const extra = rel === 'aluguel'
-            ? { valor: n('#vi-valor-a'), periodo: v('#vi-periodo'), dia_vencimento: n('#vi-dia-a') || null, inicio: v('#vi-inicio') || null, fim: v('#vi-fim') || null }
-            : rel === 'compra'
-              ? { valor: n('#vi-valor-c'), parcelas: n('#vi-parcelas') || null, parcela: n('#vi-parcela') || null, parcelas_pagas: n('#vi-pagas'), dia_vencimento: n('#vi-dia-c') || null }
-              : { operacao: v('#vi-op'), valor: n('#vi-valor-p'), etapa: 0 };
-          const { error } = await db.from('imoveis_cliente').insert({ ...base, ...extra });
-          if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? 'Já existe um imóvel com esse código.' : 'Não foi possível salvar: ' + error.message);
-          fecharJanela(); await carregar(); render(); aviso(`${base.titulo} vinculado.`);
-        });
+        return formVincular();
+
+      // ----- Imóveis no site -----
+      case 'novo-anuncio': return formAnuncio(null);
+      case 'editar-anuncio': return formAnuncio(an);
+      case 'publicar-anuncio':
+        return salvar(db.from('imoveis_site').update({ situacao: 'publicado' }).eq('id', id), `${an.codigo} está no site.`);
+      case 'tirar-anuncio':
+        return salvar(db.from('imoveis_site').update({ situacao: 'rascunho' }).eq('id', id), `${an.codigo} saiu do site. Continua guardado aqui, em "Fora do site".`);
+      case 'negocio-anuncio':
+        return janela(`<h2>Marcar ${esc(an.codigo)} como ${negocioDe(an)}?</h2>
+          <p>${esc(an.titulo)} sai do site na hora. As fotos, as características e a descrição ficam guardadas aqui, para anunciar de novo quando ${an.finalidade === 'comprar' ? 'precisar' : 'vagar'}.</p>
+          <div class="acoes" style="justify-content:flex-start">
+            <button class="btn" data-acao="confirmar-negocio" data-id="${id}">Marcar como ${negocioDe(an)}</button>
+            ${clientes.length ? `<button class="btn btn--linha" data-acao="negocio-cliente" data-id="${id}">Marcar e vincular a um cliente</button>` : ''}
+            <button class="btn btn--linha" data-fechar>Cancelar</button></div>
+          <p class="nota">${clientes.length
+            ? '"Vincular a um cliente" abre o formulário de "Imóveis de clientes" já preenchido, para o inquilino ou o comprador acompanhar o contrato e as contas na área dele.'
+            : 'Para o inquilino ou o comprador acompanhar o contrato na área do cliente, cadastre-o primeiro na aba "Clientes" e depois vincule o imóvel.'}</p>`);
+      case 'confirmar-negocio':
+      case 'negocio-cliente': {
+        fecharJanela();
+        const ok = await salvar(db.from('imoveis_site').update({ situacao: negocioDe(an) }).eq('id', id), `${an.codigo} marcado como ${negocioDe(an)} e tirado do site.`);
+        if (ok && alvo.dataset.acao === 'negocio-cliente') {
+          formVincular({ cod: an.codigo, tipo: an.tipo, titulo: an.titulo, end: [an.bairro, an.cidade].filter(Boolean).join(' · '),
+            rel: an.finalidade === 'comprar' ? 'compra' : 'aluguel', valor: an.preco, periodo: an.periodo || 'mês' });
+        }
+        return;
+      }
+      case 'excluir-anuncio':
+        return janela(`<h2>Excluir ${esc(an.codigo)}?</h2><p>${esc(an.titulo)} e as fotos dele são apagados de vez. Se for anunciar de novo um dia, prefira deixar guardado.</p>
+          <div class="acoes" style="justify-content:flex-start"><button class="btn btn--perigo" data-acao="confirmar-exclusao-anuncio" data-id="${id}">Excluir</button><button class="btn btn--linha" data-fechar>Cancelar</button></div>`);
+      case 'confirmar-exclusao-anuncio': {
+        fecharJanela();
+        const ok = await salvar(db.from('imoveis_site').delete().eq('id', id), `${an.codigo} excluído.`);
+        if (ok && an.fotos.length) await db.storage.from(FOTOS).remove(an.fotos);
+        return;
+      }
       case 'nova-cobranca':
         return janela(`<h2>Lançar conta</h2>
           <form class="form" id="form-cobranca"><label for="co-imovel">Imóvel<select id="co-imovel">${imoveis.filter(x => x.relacao !== 'processo').map(x => `<option value="${x.id}">${esc(x.titulo)} · ${esc(cliente(x.cliente).nome)}</option>`).join('')}</select></label>

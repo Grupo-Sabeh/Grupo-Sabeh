@@ -227,3 +227,64 @@ dialog::backdrop { background: rgba(10,30,36,0.55); }
 [hidden] { display: none !important; }
 .form label { min-width: 0; }
 .form input, .form select, .form textarea { width: 100%; min-width: 0; }
+
+/* ---------- Imóveis no site (administração) ---------- */
+:root { --neutro-fundo: #EDF2F3; --neutro: #587077; --foto-comercial: #224F5A; --foto-residencial: #2E6470; --foto-terreno: #1E5D6E; --foto-rural: #5E4728; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --neutro-fundo: #203D45; --neutro: #9DB4BA; } }
+:root[data-theme="dark"] { --neutro-fundo: #203D45; --neutro: #9DB4BA; }
+.selo--neutro { background: var(--neutro-fundo); color: var(--neutro); }
+.selo--estrela::before { content: '★'; width: auto; height: auto; background: none; border-radius: 0; }
+.dados--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.anuncios { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--linha); border: 1px solid var(--linha); }
+.anuncio { background: var(--papel); display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; gap: 8px 18px; padding: 14px; align-items: center; }
+.anuncio__foto { grid-row: span 2; width: 112px; aspect-ratio: 4 / 3; display: grid; place-items: center; background-size: cover; background-position: center; color: rgba(255,255,255,0.85); }
+.anuncio__foto svg { width: 34%; }
+.anuncio__info { min-width: 0; display: grid; gap: 2px; }
+.anuncio__info b { font-size: 1rem; }
+.anuncio__info small { color: var(--suave); font-size: 0.82rem; }
+.anuncio__lado { display: grid; justify-items: end; gap: 6px; text-align: right; }
+.anuncio__preco { font-weight: 900; font-variant-numeric: tabular-nums; }
+.anuncio__preco small { font-weight: 400; color: var(--suave); }
+.anuncio__selos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.anuncio .acoes { grid-column: 2 / -1; justify-content: flex-start; }
+.anuncio--fora .anuncio__foto { filter: grayscale(0.7); opacity: 0.75; }
+.cat-comercial { background-color: var(--foto-comercial); }
+.cat-residencial { background-color: var(--foto-residencial); }
+.cat-terreno { background-color: var(--foto-terreno); }
+.cat-rural { background-color: var(--foto-rural); }
+
+/* Cadastro: janela larga, grupos de campos, fotos e sugestões */
+dialog.janela--larga { width: min(780px, calc(100% - 32px)); }
+.form__linha--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.form fieldset { border: 1px solid var(--linha); padding: 14px; margin: 0; display: grid; gap: 14px; min-width: 0; }
+.form legend { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--suave); padding: 0 6px; }
+.form .marcar { display: flex; align-items: center; gap: 8px; font-weight: 600; letter-spacing: 0; }
+.form .marcar input { width: auto; }
+.botoes-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.foto { position: relative; aspect-ratio: 4 / 3; background-size: cover; background-position: center; border: 1px solid var(--linha); }
+.foto__capa { position: absolute; left: 6px; top: 6px; background: var(--teal); color: #FFFFFF; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 6px; }
+.foto__botoes { position: absolute; right: 4px; bottom: 4px; display: flex; gap: 4px; }
+.foto__botoes button { width: 28px; height: 28px; border: 0; background: rgba(22,56,64,0.85); color: #FFFFFF; cursor: pointer; font-size: 0.9rem; line-height: 1; }
+.foto__botoes button:focus-visible { outline: 2px solid #FFFFFF; }
+.form .foto--add { display: grid; place-items: center; text-align: center; border: 1px dashed var(--teal); color: var(--teal); font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 8px; background: var(--teal-claro); }
+.foto--add input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.foto--add:focus-within { outline: 3px solid var(--teal); outline-offset: 2px; }
+.sugestoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.sugestoes button { border: 1px solid var(--linha); background: var(--papel); color: var(--texto); padding: 5px 10px; font-size: 0.78rem; cursor: pointer; }
+.sugestoes button::before { content: '+ '; color: var(--teal); font-weight: 700; }
+.sugestoes button[aria-pressed="true"] { background: var(--teal-claro); border-color: var(--teal); }
+.sugestoes button[aria-pressed="true"]::before { content: '✓ '; }
+.sugestoes button:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
+.form textarea#an-carac { min-height: 140px; }
+
+@media (max-width: 900px) { .dados--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .anuncio { grid-template-columns: 88px minmax(0, 1fr); }
+  .anuncio__foto { width: 88px; grid-row: auto; }
+  .anuncio__lado { grid-column: 1 / -1; justify-items: start; text-align: left; grid-auto-flow: column; justify-content: space-between; align-items: center; }
+  .anuncio .acoes { grid-column: 1 / -1; }
+  .form__linha--3 { grid-template-columns: 1fr 1fr; }
+  .busca-campo { width: 100%; }
+}

@@ -1,8 +1,37 @@
-// Busca de imóveis: lê window.IMOVEIS (assets/imoveis.js), monta os filtros, os cartões e a janela de detalhes.
-(() => {
-  const IMOVEIS = window.IMOVEIS || [];
+// Busca de imóveis: lê os imóveis publicados no Supabase (cadastrados na área do administrador),
+// monta os filtros, os cartões e a janela de detalhes.
+(async () => {
+  const SUPABASE = 'https://tsmjdirjonwocjwxvlbt.supabase.co';
+  const CHAVE_PUBLICA = 'sb_publishable_4U8t5Ifrv1eRGM3DKe3JbQ_w3GJbq6h';
+  const FOTOS = SUPABASE + '/storage/v1/object/public/fotos-imoveis/';
+  let IMOVEIS = [];
+  let falhou = false;
   const WHATSAPP = '5518996691107';
   const EMAIL = 'imoveis@gruposabeh.com.br';
+
+  // O banco só entrega os imóveis marcados como "No site"
+  async function carregarImoveis() {
+    const campos = 'codigo,titulo,finalidade,categoria,tipo,bairro,cidade,preco,periodo,area,hectares,quartos,banheiros,vagas,caracteristicas,descricao,fotos,destaque';
+    const parar = new AbortController();
+    const espera = setTimeout(() => parar.abort(), 12000);
+    try {
+      const r = await fetch(`${SUPABASE}/rest/v1/imoveis_site?select=${campos}&situacao=eq.publicado&order=codigo`,
+        { headers: { apikey: CHAVE_PUBLICA }, signal: parar.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const numero = v => v == null ? null : Number(v);
+      return (await r.json()).map(i => ({
+        ...i,
+        preco: numero(i.preco), area: numero(i.area), hectares: numero(i.hectares),
+        caracteristicas: i.caracteristicas || [],
+        fotos: (i.fotos || []).map(c => FOTOS + c.split('/').map(encodeURIComponent).join('/'))
+      }));
+    } finally {
+      clearTimeout(espera);
+    }
+  }
+  async function carregar() {
+    try { IMOVEIS = await carregarImoveis(); } catch (e) { IMOVEIS = []; falhou = true; }
+  }
 
   const CATEGORIAS = {
     comercial: 'Comercial',
@@ -70,7 +99,7 @@
       (!estado.categoria || i.categoria === estado.categoria) &&
       (!estado.tipo || i.tipo === estado.tipo) &&
       (!estado.bairro || i.bairro === estado.bairro) &&
-      (!q || semAcento([i.codigo, i.titulo, i.tipo, i.bairro, i.cidade, i.descricao].join(' ')).includes(q))
+      (!q || semAcento([i.codigo, i.titulo, i.tipo, i.bairro, i.cidade, i.descricao, ...(i.caracteristicas || [])].join(' ')).includes(q))
     );
     const porPreco = (a, b, dir) => {
       if (a.preco == null) return 1;
@@ -198,12 +227,13 @@
     const n = lista.length;
     const semCadastro = IMOVEIS.length === 0;
     $('#resultado-total').textContent = semCadastro ? '' : (n === 1 ? '1 imóvel encontrado' : `${n} imóveis encontrados`);
-    // Enquanto nenhum imóvel estiver cadastrado, a lista convida a falar com a equipe
-    $('#vazio-titulo').textContent = semCadastro
-      ? 'Estamos cadastrando o nosso portfólio no site.'
-      : 'Nenhum imóvel encontrado com esses filtros.';
-    $('#vazio-texto').textContent = semCadastro
-      ? 'Enquanto isso, fale com a nossa equipe: ela informa na hora os imóveis disponíveis para alugar ou comprar.'
+    // Enquanto nenhum imóvel estiver publicado (ou se a lista não carregar), convida a falar com a equipe
+    $('#vazio-titulo').textContent = falhou
+      ? 'Não foi possível carregar os imóveis agora.'
+      : semCadastro ? 'Estamos cadastrando o nosso portfólio no site.' : 'Nenhum imóvel encontrado com esses filtros.';
+    $('#vazio-texto').textContent = falhou
+      ? 'Tente de novo em alguns minutos ou fale com a nossa equipe: ela informa na hora os imóveis disponíveis para alugar ou comprar.'
+      : semCadastro ? 'Enquanto isso, fale com a nossa equipe: ela informa na hora os imóveis disponíveis para alugar ou comprar.'
       : 'Nem todo o portfólio está no site. Conte o que você procura que a nossa equipe verifica.';
     $('#vazio-limpar').hidden = semCadastro;
     $('.imoveis__ordem').hidden = semCadastro;
@@ -217,7 +247,6 @@
   // ---------- Página só com a barra (ex.: Sabeh Imóveis) ----------
   // A busca leva para a página inicial, já filtrada.
   if (!$('#resultado-lista')) {
-    preencherOpcoes();
     document.querySelectorAll('.busca__abas button').forEach(b => b.addEventListener('click', () => {
       estado.finalidade = b.dataset.finalidade;
       marcarAbas();
@@ -231,6 +260,9 @@
       const consulta = params.toString();
       location.href = 'index.html' + (consulta ? '?' + consulta : '') + '#imoveis';
     });
+    // Os tipos e bairros da barra vêm dos imóveis publicados
+    await carregar();
+    preencherOpcoes();
     return;
   }
 
@@ -256,6 +288,8 @@
         <p class="imovel__local">${[i.bairro, i.cidade].filter(Boolean).map(esc).join(' · ')}</p>
         <p class="detalhe__preco">${preco(i)}</p>
         ${specs ? `<ul class="detalhe__specs">${specs}</ul>` : ''}
+        ${i.caracteristicas && i.caracteristicas.length ? `<p class="detalhe__subtitulo">Características</p>
+        <ul class="detalhe__carac">${i.caracteristicas.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
         ${i.descricao ? `<p class="detalhe__descricao">${esc(i.descricao)}</p>` : ''}
         <p class="detalhe__codigo">Código do imóvel: <b>${esc(i.codigo)}</b></p>
         <div class="detalhe__acoes">
@@ -320,6 +354,11 @@
       irParaResultados();
     }
   });
+
+  // Enquanto a lista chega do banco
+  $('#resultado-total').textContent = 'Carregando imóveis…';
+  $('.imoveis__ordem').hidden = true;
+  await carregar();
 
   preencherOpcoes();
   const veioDeOutraPagina = buscaRecebida();
