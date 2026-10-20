@@ -54,9 +54,18 @@
   const { data: { session } } = await db.auth.getSession();
   if (!session) return location.replace('entrar.html');
   const usuario = session.user;
-  // A tela da administração só aparece para a conta confirmada do administrador (o banco também confere)
-  const souAdmin = (usuario.email || '').toLowerCase() === ADMIN && !!usuario.email_confirmed_at;
   db.auth.onAuthStateChange(evento => { if (evento === 'SIGNED_OUT') location.replace('entrar.html'); });
+
+  // Verificação em duas etapas: quem ativou precisa digitar o código; o administrador é obrigado a ativar
+  const emailAdmin = (usuario.email || '').toLowerCase() === ADMIN && !!usuario.email_confirmed_at;
+  const telaErro = () => { $('#app').innerHTML = `<div class="faixa"><div class="miolo carregando"><p>Não foi possível carregar a sua área agora.</p><p><a class="btn" href="area.html">Tentar de novo</a> <a class="btn btn--linha" href="entrar.html">Voltar para entrar</a></p></div></div>`; };
+  let duas;
+  try { duas = await DuasEtapas.situacao(); } catch (_) { return telaErro(); }
+  if (duas.precisaCodigo) return DuasEtapas.pedirCodigo($('#app'), duas.app, () => location.reload());
+  if (emailAdmin && !duas.app) return DuasEtapas.configurar($('#app'), { obrigatorio: true, aoConcluir: () => location.reload() });
+
+  // A tela da administração só aparece para a conta confirmada do administrador, depois do código (o banco também confere)
+  const souAdmin = emailAdmin && duas.comCodigo;
 
   const estado = { aba: 'resumo', verComo: null, filtro: 'todas', buscaCliente: '' };
 
@@ -209,7 +218,14 @@
         <section class="painel"><div class="dados">
           <div><small>Nome</small><b>${esc(cl.nome)}</b></div><div><small>Documento</small><b>${esc(cl.doc)}</b></div>
           <div><small>E-mail</small><b>${esc(cl.email)}</b></div><div><small>Telefone</small><b>${esc(cl.tel)}</b></div></div>
-          <p class="vazio" style="margin-top:14px"><button class="link" data-acao="trocar-senha">Trocar minha senha</button></p></section>`;
+          <p class="vazio" style="margin-top:14px"><button class="link" data-acao="trocar-senha">Trocar minha senha</button></p></section>
+        ${souAdmin ? '' : `<section class="painel"><div class="painel__topo"><h2>Verificação em duas etapas</h2>${duas.app ? '<span class="selo selo--ok">Ativada</span>' : '<span class="selo selo--alerta">Desativada</span>'}</div>
+          <p class="vazio">${duas.app
+            ? 'Ao entrar, além da senha, pedimos o código do app autenticador do seu celular.'
+            : 'Proteja a sua conta: além da senha, pedimos um código do app autenticador do seu celular (Google Authenticator ou Microsoft Authenticator).'}</p>
+          <div class="acoes" style="justify-content:flex-start;margin-top:14px">${duas.app
+            ? '<button class="btn btn--linha" data-acao="desativar-2etapas">Desativar</button>'
+            : '<button class="btn" data-acao="ativar-2etapas">Ativar</button>'}</div></section>`}`;
     }
     const faixaAdm = souAdmin
       ? `<div class="modo-adm faixa"><div class="miolo"><span>Você está vendo a área de <b>${esc(cl.nome)}</b> como administrador.</span><button class="btn btn--pequeno" data-acao="voltar-admin">Voltar à administração</button></div></div>` : '';
@@ -310,6 +326,22 @@
       case 'ver-como': Object.assign(estado, { verComo: id, aba: 'resumo' }); render(); return window.scrollTo(0, 0);
       case 'voltar-admin': Object.assign(estado, { verComo: null, aba: 'clientes' }); return render();
 
+      case 'ativar-2etapas':
+        janela('<div id="configurar-2etapas"></div>');
+        return DuasEtapas.configurar($('#configurar-2etapas'), {
+          obrigatorio: false,
+          aoConcluir: async () => { fecharJanela(); duas = await DuasEtapas.situacao(); render(); aviso('Verificação em duas etapas ativada.'); },
+          aoCancelar: fecharJanela
+        });
+      case 'desativar-2etapas':
+        return janela(`<h2>Desativar a verificação em duas etapas?</h2><p>Depois disso, para entrar basta o e-mail e a senha.</p>
+          <div class="acoes" style="justify-content:flex-start"><button class="btn btn--perigo" data-acao="confirmar-desativar-2etapas">Desativar</button><button class="btn btn--linha" data-fechar>Cancelar</button></div>`);
+      case 'confirmar-desativar-2etapas': {
+        fecharJanela();
+        const ok = await DuasEtapas.desativar(duas.app);
+        duas = await DuasEtapas.situacao(); render();
+        return aviso(ok ? 'Verificação em duas etapas desativada.' : 'Não foi possível desativar agora. Tente de novo.');
+      }
       case 'trocar-senha': {
         const { error } = await db.auth.resetPasswordForEmail(usuario.email, { redirectTo: new URL('definir-senha.html', location.href).href });
         return aviso(error ? 'Não foi possível enviar agora. Tente de novo mais tarde.' : 'Enviamos um link para o seu e-mail para você criar a nova senha.');
