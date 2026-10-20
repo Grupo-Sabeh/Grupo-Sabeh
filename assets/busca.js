@@ -89,13 +89,14 @@
   };
 
   const linkWhatsApp = i => 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
-    `Olá, vim pelo site do Grupo Sabeh e tenho interesse no imóvel ${i.codigo} (${i.titulo}).`);
-  const linkEmail = i => `mailto:${EMAIL}?subject=` + encodeURIComponent(`Interesse no imóvel ${i.codigo}`) +
-    '&body=' + encodeURIComponent(`Olá, tenho interesse no imóvel ${i.codigo} (${i.titulo}).`);
+    `Olá, vim pelo site do Grupo Sabeh e tenho interesse no imóvel ref. ${i.codigo} (${i.titulo}).`);
+  const linkEmail = i => `mailto:${EMAIL}?subject=` + encodeURIComponent(`Interesse no imóvel ref. ${i.codigo}`) +
+    '&body=' + encodeURIComponent(`Olá, tenho interesse no imóvel ref. ${i.codigo} (${i.titulo}).`);
 
   // ---------- Filtros ----------
   function filtrar() {
-    const q = semAcento(estado.q.trim());
+    // "ref. PC-001" ou "referência PC-001" procura só pela referência
+    const q = semAcento(estado.q.trim()).replace(/^ref(erencia)?(?:[.:]\s*|\s+)/, '');
     const lista = IMOVEIS.filter(i =>
       (!estado.finalidade || i.finalidade === estado.finalidade) &&
       (!estado.categoria || i.categoria === estado.categoria) &&
@@ -218,7 +219,7 @@
           ${specs ? `<ul class="imovel__specs">${specs}</ul>` : ''}
           <div class="imovel__rodape">
             <strong class="imovel__preco">${preco(i)}</strong>
-            <span class="imovel__codigo">Cód. ${esc(i.codigo)}</span>
+            <span class="imovel__codigo">Ref. ${esc(i.codigo)}</span>
           </div>
         </div>
       </article>`;
@@ -293,7 +294,7 @@
         ${i.caracteristicas && i.caracteristicas.length ? `<p class="detalhe__subtitulo">Características</p>
         <ul class="detalhe__carac">${i.caracteristicas.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
         ${i.descricao ? `<p class="detalhe__descricao">${esc(i.descricao)}</p>` : ''}
-        <p class="detalhe__codigo">Código do imóvel: <b>${esc(i.codigo)}</b></p>
+        <p class="detalhe__codigo">Ref. <b>${esc(i.codigo)}</b></p>
         <div class="detalhe__acoes">
           <a class="botao" href="${linkWhatsApp(i)}" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icone-whatsapp"/></svg>

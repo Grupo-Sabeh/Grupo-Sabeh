@@ -314,7 +314,7 @@
       <button class="btn btn--linha btn--pequeno" data-acao="excluir-anuncio" data-id="${a.id}">Excluir</button>`;
     return `<li class="anuncio${a.situacao === 'publicado' ? '' : ' anuncio--fora'}">
       <div class="anuncio__foto cat-${esc(a.categoria)}"${a.fotos[0] ? ` style="background-image:url('${esc(urlFoto(a.fotos[0]))}')"` : ''}>${a.fotos[0] ? '' : icone(a.categoria)}</div>
-      <div class="anuncio__info"><span class="imovel__tipo">${esc(a.tipo)} · ${esc(a.codigo)}</span><b>${esc(a.titulo)}</b>
+      <div class="anuncio__info"><span class="imovel__tipo">${esc(a.tipo)} · Ref. ${esc(a.codigo)}</span><b>${esc(a.titulo)}</b>
         <small>${esc(local)}${med.length ? ' · ' + med.join(' · ') : ''}</small>
         <small>${a.fotos.length ? `${a.fotos.length} ${a.fotos.length === 1 ? 'foto' : 'fotos'}` : 'Sem fotos'}${carac}</small></div>
       <div class="anuncio__lado"><span class="anuncio__preco">${precoAnuncio(a)} <small>· ${rotuloFinalidade(a)}</small></span>
@@ -335,7 +335,7 @@
         <button class="btn" data-acao="novo-anuncio">+ Cadastrar imóvel</button></div>
       <section class="painel"><div class="painel__topo">
         <div class="filtros" role="group" aria-label="Filtrar">${filtros.map(([id, r]) => `<button data-filtro-site="${id}" aria-pressed="${estado.filtroSite === id}">${r}</button>`).join('')}</div>
-        <input class="busca-campo" id="busca-anuncio" type="search" placeholder="Código, nome ou bairro" value="${esc(estado.buscaSite)}"></div>
+        <input class="busca-campo" id="busca-anuncio" type="search" placeholder="Referência, nome ou bairro" value="${esc(estado.buscaSite)}"></div>
         ${lista.length ? `<ul class="anuncios">${lista.map(linhaAnuncio).join('')}</ul>`
           : `<p class="vazio">${anuncios.length ? 'Nenhum imóvel aqui.' : 'Nenhum imóvel cadastrado ainda. Clique em "Cadastrar imóvel" para colocar o primeiro no site.'}</p>`}
       </section>`;
@@ -458,7 +458,7 @@
           </div>
           <label for="an-titulo">Nome do anúncio<input id="an-titulo" value="${v(a.titulo)}" placeholder="Ex.: Sala comercial no Centro" maxlength="70" required></label>
           <div class="form__linha form__linha--3">
-            <label for="an-codigo">Código<input id="an-codigo" value="${v(a.codigo)}" maxlength="20" required></label>
+            <label for="an-codigo">Referência (no site: Ref.)<input id="an-codigo" value="${v(a.codigo)}" maxlength="20" required></label>
             <label for="an-bairro">Bairro ou região<input id="an-bairro" value="${v(a.bairro)}" placeholder="Ex.: Centro"></label>
             <label for="an-cidade">Cidade<input id="an-cidade" value="${v(a.cidade)}"></label>
           </div></fieldset>
@@ -589,8 +589,8 @@
     const numero = s => { const x = f.querySelector(s); return x.closest('label').hidden || x.value === '' ? null : Number(x.value); };
     const codigo = val('#an-codigo').toUpperCase();
     erroForm(f, '');
-    if (!val('#an-tipo') || !val('#an-titulo') || !codigo) return erroForm(f, 'Preencha o tipo, o nome do anúncio e o código.');
-    if (anuncios.some(a => a.codigo === codigo && (!antes || a.id !== antes.id))) return erroForm(f, `Já existe um imóvel com o código ${codigo}.`);
+    if (!val('#an-tipo') || !val('#an-titulo') || !codigo) return erroForm(f, 'Preencha o tipo, o nome do anúncio e a referência.');
+    if (anuncios.some(a => a.codigo === codigo && (!antes || a.id !== antes.id))) return erroForm(f, `Já existe um imóvel com a referência ${codigo}.`);
     const consulte = f.querySelector('#an-consulte').checked;
     const preco = lerValor(val('#an-preco'));
     if (!consulte && !val('#an-preco')) return erroForm(f, 'Informe o valor ou marque "Mostrar Consulte".');
@@ -617,7 +617,7 @@
       situacao: acao === 'publicado' ? 'publicado' : (antes ? antes.situacao : 'rascunho')
     };
     const { error } = antes ? await db.from('imoveis_site').update(dados).eq('id', antes.id) : await db.from('imoveis_site').insert(dados);
-    if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? `Já existe um imóvel com o código ${codigo}.` : 'Não foi possível salvar: ' + error.message);
+    if (error) return erroForm(f, /duplicate|unique/i.test(error.message) ? `Já existe um imóvel com a referência ${codigo}.` : 'Não foi possível salvar: ' + error.message);
     fotosPendentes = [];
     // Fotos tiradas do anúncio saem também do armazenamento
     const removidas = antes ? antes.fotos.filter(c => !caminhos.includes(c)) : [];
