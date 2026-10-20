@@ -285,10 +285,18 @@
   // ---------- Imóveis no site (administração) ----------
   const negocioDe = a => a.finalidade === 'comprar' ? 'vendido' : 'alugado';
   const rotuloFinalidade = a => a.finalidade === 'comprar' ? 'Venda' : (a.categoria === 'rural' ? 'Arrendamento' : 'Locação');
-  const precoAnuncio = a => a.preco == null ? 'Consulte' : `${real(a.preco)}${a.periodo ? `<small>/${esc(a.periodo)}</small>` : ''}`;
+  const precoAnuncio = a => a.preco == null ? 'Consulte' : `R$ ${valorBr(a.preco)}${a.periodo ? `<small>/${esc(a.periodo)}</small>` : ''}`;
   const medidas = a => [a.area && `${a.area.toLocaleString('pt-BR')} m²`, a.hectares && `${a.hectares.toLocaleString('pt-BR')} ha`,
     a.quartos && `${a.quartos} ${a.quartos === 1 ? 'quarto' : 'quartos'}`, a.banheiros && `${a.banheiros} ${a.banheiros === 1 ? 'banheiro' : 'banheiros'}`,
-    a.vagas && `${a.vagas} ${a.vagas === 1 ? 'vaga' : 'vagas'}`].filter(Boolean);
+    a.vagas ? `${a.vagas} ${a.vagas === 1 ? 'vaga' : 'vagas'}` : a.vagas === 0 && 'sem estacionamento'].filter(Boolean);
+  // Valor escrito do jeito brasileiro: "4.500", "4.500,00", "R$ 1.250,50" (ponto = milhar, vírgula = centavos)
+  function lerValor(texto) {
+    let s = String(texto).replace(/R\$|\s/gi, '');
+    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    return /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
+  }
+  const valorBr = v => v == null ? '' : v.toLocaleString('pt-BR', Number.isInteger(v) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   function linhaAnuncio(a) {
     const [rotulo, cls] = SITUACAO_SITE[a.situacao];
@@ -455,7 +463,7 @@
           </div></fieldset>
         <fieldset><legend>Valor</legend>
           <div class="form__linha form__linha--3">
-            <label for="an-preco">Valor (R$)<input id="an-preco" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.preco)}"></label>
+            <label for="an-preco">Valor (R$)<input id="an-preco" inputmode="decimal" autocomplete="off" placeholder="Ex.: 4.500" value="${esc(valorBr(a.preco))}"><small class="dica" id="an-preco-dica"></small></label>
             <label for="an-periodo" data-so-aluguel>Cobrança<select id="an-periodo"><option value="mês"${a.periodo !== 'ano' ? ' selected' : ''}>Por mês</option><option value="ano"${sel(a.periodo, 'ano')}>Por ano</option></select></label>
             <label class="marcar" for="an-consulte"><input id="an-consulte" type="checkbox"${a.preco == null && !novo ? ' checked' : ''}> Mostrar "Consulte" no lugar do valor</label>
           </div></fieldset>
@@ -465,7 +473,7 @@
             <label for="an-hectares" data-cat="rural">Área (hectares)<input id="an-hectares" type="number" min="0" step="0.01" inputmode="decimal" value="${v(a.hectares)}"></label>
             <label for="an-quartos" data-cat="residencial">Quartos<input id="an-quartos" type="number" min="0" step="1" value="${v(a.quartos)}"></label>
             <label for="an-banheiros" data-cat="comercial residencial">Banheiros<input id="an-banheiros" type="number" min="0" step="1" value="${v(a.banheiros)}"></label>
-            <label for="an-vagas" data-cat="comercial residencial">Vagas<input id="an-vagas" type="number" min="0" step="1" value="${v(a.vagas)}"></label>
+            <label for="an-vagas" data-cat="comercial residencial">Vagas (0 = sem estacionamento)<input id="an-vagas" type="number" min="0" step="1" value="${v(a.vagas)}"></label>
           </div></fieldset>
         <fieldset><legend>Características</legend>
           <div class="sugestoes" id="sugestoes" role="group" aria-label="Sugestões de características"></div>
@@ -487,8 +495,18 @@
       $('#form-anuncio [data-so-aluguel]').hidden = $('#an-finalidade').value !== 'alugar';
       $('#an-tipos').innerHTML = TIPOS_SUGERIDOS[cat].map(t => `<option value="${t}">`).join('');
       $('#an-preco').disabled = $('#an-consulte').checked;
+      mostrarValor();
       desenharSugestoes();
     };
+    // Mostra como o valor vai aparecer no site, para conferir antes de salvar
+    const mostrarValor = () => {
+      const dica = $('#an-preco-dica'), texto = $('#an-preco').value.trim(), valor = lerValor(texto);
+      const periodo = $('#an-finalidade').value === 'alugar' ? '/' + $('#an-periodo').value : '';
+      dica.textContent = $('#an-consulte').checked ? 'No site: Consulte'
+        : !texto ? '' : isNaN(valor) ? 'Valor não reconhecido. Escreva como 4.500 ou 1.250,50.' : `No site: R$ ${valorBr(valor)}${periodo}`;
+    };
+    $('#an-preco').addEventListener('input', mostrarValor);
+    $('#an-periodo').addEventListener('change', mostrarValor);
     $('#an-categoria').addEventListener('change', () => {
       if ($('#an-categoria').value !== categoria) $('#an-periodo').value = $('#an-categoria').value === 'rural' ? 'ano' : 'mês';
       categoria = $('#an-categoria').value; ajustar();
@@ -573,7 +591,9 @@
     if (!val('#an-tipo') || !val('#an-titulo') || !codigo) return erroForm(f, 'Preencha o tipo, o nome do anúncio e o código.');
     if (anuncios.some(a => a.codigo === codigo && (!antes || a.id !== antes.id))) return erroForm(f, `Já existe um imóvel com o código ${codigo}.`);
     const consulte = f.querySelector('#an-consulte').checked;
-    if (!consulte && f.querySelector('#an-preco').value === '') return erroForm(f, 'Informe o valor ou marque "Mostrar Consulte".');
+    const preco = lerValor(val('#an-preco'));
+    if (!consulte && !val('#an-preco')) return erroForm(f, 'Informe o valor ou marque "Mostrar Consulte".');
+    if (!consulte && isNaN(preco)) return erroForm(f, 'Valor não reconhecido. Escreva como 4.500 ou 1.250,50.');
     // Envia as fotos novas, na ordem da tela
     const pasta = nomeArquivo(codigo);
     const novas = fotosForm.filter(x => !x.caminho).length;
@@ -589,7 +609,7 @@
     const caminhos = fotosForm.map(x => x.caminho);
     const dados = {
       codigo, titulo: val('#an-titulo'), finalidade: val('#an-finalidade'), categoria: val('#an-categoria'), tipo: val('#an-tipo'),
-      bairro: val('#an-bairro'), cidade: val('#an-cidade'), preco: consulte ? null : Number(f.querySelector('#an-preco').value),
+      bairro: val('#an-bairro'), cidade: val('#an-cidade'), preco: consulte ? null : preco,
       periodo: val('#an-finalidade') === 'alugar' ? val('#an-periodo') : '',
       area: numero('#an-area'), hectares: numero('#an-hectares'), quartos: numero('#an-quartos'), banheiros: numero('#an-banheiros'), vagas: numero('#an-vagas'),
       caracteristicas: linhasCarac(), descricao: val('#an-descricao'), fotos: caminhos, destaque: f.querySelector('#an-destaque').checked,

@@ -288,3 +288,4 @@ dialog.janela--larga { width: min(780px, calc(100% - 32px)); }
   .form__linha--3 { grid-template-columns: 1fr 1fr; }
   .busca-campo { width: 100%; }
 }
+.form .dica { font-weight: 400; font-size: 0.78rem; letter-spacing: 0; color: var(--suave); min-height: 1.2em; }

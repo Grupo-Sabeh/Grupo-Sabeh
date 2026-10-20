@@ -751,8 +751,9 @@ h3 { font-size: 1.25rem; }
 .detalhe__info { padding: 40px 36px 36px; }
 .detalhe__info h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 6px 0 8px; padding-right: 32px; }
 .detalhe__preco { font-weight: 900; font-size: 1.6rem; margin: 18px 0; }
-.detalhe__specs { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1px; background: var(--linha); border: 1px solid var(--linha); margin-bottom: 20px; }
-.detalhe__specs li { background: var(--branco); padding: 12px 14px; font-weight: 700; }
+/* Os quadros crescem para preencher a linha: nunca sobra espaço vazio, e textos como "Sem estacionamento" cabem */
+.detalhe__specs { list-style: none; display: flex; flex-wrap: wrap; gap: 1px; background: var(--linha); border: 1px solid var(--linha); margin-bottom: 20px; }
+.detalhe__specs li { flex: 1 1 100px; background: var(--branco); padding: 12px 14px; font-weight: 700; }
 .detalhe__specs small { display: block; font-weight: 400; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cinza-texto); }
 .detalhe__subtitulo { font-weight: 700; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
 .detalhe__carac { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; margin-bottom: 20px; font-size: 0.92rem; }

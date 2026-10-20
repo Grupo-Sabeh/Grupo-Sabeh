@@ -69,7 +69,8 @@
 
   const preco = i => {
     if (i.preco == null) return 'Consulte';
-    const valor = 'R$ ' + num(i.preco);
+    // Valor inteiro sem centavos (R$ 4.500); com centavos, sempre dois dígitos (R$ 1.250,50)
+    const valor = 'R$ ' + i.preco.toLocaleString('pt-BR', Number.isInteger(i.preco) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return i.periodo ? `${valor}<small>/${esc(i.periodo)}</small>` : valor;
   };
 
@@ -83,6 +84,7 @@
     if (i.quartos) itens.push(['Quartos', i.quartos]);
     if (i.banheiros) itens.push(['Banheiros', i.banheiros]);
     if (i.vagas) itens.push(['Vagas', i.vagas]);
+    else if (i.vagas === 0) itens.push(['Vagas', 'Sem estacionamento']);
     return itens;
   };
 
@@ -198,7 +200,7 @@
   function cartao(i) {
     const foto = i.fotos && i.fotos[0];
     const specs = caracteristicas(i).map(([k, v]) =>
-      `<li>${esc(k === 'Área' ? v : `${v} ${v === 1 ? k.toLowerCase().replace(/s$/, '') : k.toLowerCase()}`)}</li>`).join('');
+      `<li>${esc(k === 'Área' || typeof v === 'string' ? v : `${v} ${v === 1 ? k.toLowerCase().replace(/s$/, '') : k.toLowerCase()}`)}</li>`).join('');
     const local = [i.bairro, i.cidade].filter(Boolean).map(esc).join(' · ');
     return `
       <article class="imovel">
