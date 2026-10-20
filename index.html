@@ -15,7 +15,10 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
-  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <!-- Ícones: o Google usa tamanhos múltiplos de 48 px -->
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
   <!--
@@ -25,6 +28,32 @@
     assets/fonts/ e descomente os @font-face no início de assets/site.css. Até lá, o site usa Montserrat
     (Google Fonts), a alternativa gratuita mais próxima.
   -->
+  <!-- Dados da empresa para o Google (nome, logo e contato) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Grupo Sabeh",
+    "legalName": "Hebas Holding",
+    "url": "https://www.gruposabeh.com.br/",
+    "logo": "https://www.gruposabeh.com.br/assets/logo-vertical.png",
+    "email": "imoveis@gruposabeh.com.br",
+    "telephone": "+55-18-99669-1107",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Avenida Rui Barbosa, 444",
+      "addressLocality": "Assis",
+      "addressRegion": "SP",
+      "addressCountry": "BR"
+    },
+    "sameAs": [
+      "https://instagram.com/gruposabeh",
+      "https://facebook.com/gruposabeh",
+      "https://linkedin.com/company/gruposabeh"
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
