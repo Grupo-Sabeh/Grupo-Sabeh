@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar senha — Grupo Sabeh</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#163840">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon-96.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/area.css">
+</head>
+<body>
+  <!-- Página aberta pelo link do convite ou do "Esqueci minha senha" -->
+  <div class="faixa"><div class="miolo entrada"><div class="entrada__caixa">
+    <div class="entrada__lado">
+      <a href="index.html" class="marca" aria-label="Grupo Sabeh — voltar ao site">
+        <img src="assets/simbolo-branco.png" alt="" width="488" height="707">
+        <img class="nome" src="assets/nome-branco.png" alt="Grupo Sabeh" width="1002" height="92">
+      </a>
+      <div><h1>Área do cliente <span>Grupo Sabeh</span></h1></div>
+      <ul><li>Use no mínimo 8 caracteres</li><li>Misture letras e números</li><li>Não use a mesma senha de outros sites</li></ul>
+    </div>
+
+    <form class="entrada__form form" id="form-senha" novalidate hidden>
+      <h2>Crie a sua senha</h2>
+      <p class="vazio" id="quem"></p>
+      <label for="senha">Nova senha<input id="senha" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label for="senha2">Repita a senha<input id="senha2" type="password" autocomplete="new-password" minlength="8" required></label>
+      <p class="erro-msg" id="erro" role="alert" hidden></p>
+      <button class="btn" type="submit" id="botao">Salvar senha e entrar</button>
+    </form>
+
+    <div class="entrada__form" id="link-invalido" hidden>
+      <h2>Este link não vale mais</h2>
+      <p class="vazio">O link pode ter expirado ou já ter sido usado. Peça um novo em "Esqueci minha senha" ou fale com a equipe do Grupo Sabeh.</p>
+      <a class="btn" href="entrar.html">Ir para a entrada</a>
+    </div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+  <script src="assets/supabase.js"></script>
+  <script>
+    (async () => {
+      const db = SABEH.db;
+      const $ = s => document.querySelector(s);
+      const erroNoLink = /error=/.test(location.hash + location.search);
+
+      // O link do e-mail chega com a sessão no endereço; o supabase-js a lê sozinho
+      const mostrarFormulario = session => {
+        if (!session) return;
+        $('#quem').textContent = 'Acesso de ' + session.user.email;
+        $('#form-senha').hidden = false; $('#link-invalido').hidden = true;
+        $('#senha').focus();
+      };
+      db.auth.onAuthStateChange((evento, session) => {
+        if (['SIGNED_IN', 'PASSWORD_RECOVERY', 'INITIAL_SESSION'].includes(evento)) mostrarFormulario(session);
+      });
+      const { data: { session } } = await db.auth.getSession();
+      if (session && !erroNoLink) mostrarFormulario(session);
+      else setTimeout(() => { if ($('#form-senha').hidden) $('#link-invalido').hidden = false; }, 1500);
+
+      $('#form-senha').addEventListener('submit', async e => {
+        e.preventDefault();
+        const s1 = $('#senha').value, s2 = $('#senha2').value, erro = $('#erro');
+        const falha = t => { erro.textContent = t; erro.hidden = false; };
+        if (s1.length < 8) return falha('A senha precisa ter pelo menos 8 caracteres.');
+        if (s1 !== s2) return falha('As duas senhas não são iguais.');
+        const botao = $('#botao'); botao.disabled = true; botao.textContent = 'Salvando…';
+        const { error } = await db.auth.updateUser({ password: s1 });
+        botao.disabled = false; botao.textContent = 'Salvar senha e entrar';
+        if (error) return falha(/weak|pwned|leaked/i.test(error.message)
+          ? 'Essa senha é fraca ou já apareceu em vazamentos. Escolha outra.'
+          : 'Não foi possível salvar a senha. Peça um novo link e tente de novo.');
+        location.replace('area.html');
+      });
+    })();
+  </script>
+</body>
+</html>

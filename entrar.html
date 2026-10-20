@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do cliente — Grupo Sabeh</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#163840">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon-96.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/area.css">
+</head>
+<body>
+  <div class="faixa"><div class="miolo entrada"><div class="entrada__caixa">
+    <div class="entrada__lado">
+      <a href="index.html" class="marca" aria-label="Grupo Sabeh — voltar ao site">
+        <img src="assets/simbolo-branco.png" alt="" width="488" height="707">
+        <img class="nome" src="assets/nome-branco.png" alt="Grupo Sabeh" width="1002" height="92">
+      </a>
+      <div><h1>Área do cliente <span>Grupo Sabeh</span></h1></div>
+      <ul>
+        <li>Seus imóveis alugados, comprados e em andamento</li>
+        <li>Contratos e documentos sempre à mão</li>
+        <li>Aluguéis e parcelas: o que está pago e o que vence</li>
+      </ul>
+    </div>
+
+    <!-- Entrar -->
+    <form class="entrada__form form" id="form-entrar" novalidate>
+      <h2>Entrar</h2>
+      <label for="email">E-mail<input id="email" type="email" autocomplete="username" required></label>
+      <label for="senha">Senha<input id="senha" type="password" autocomplete="current-password" required></label>
+      <p class="erro-msg" id="erro-entrar" role="alert" hidden></p>
+      <button class="btn" type="submit" id="botao-entrar">Entrar</button>
+      <button class="link" type="button" id="ir-esqueci">Esqueci minha senha</button>
+      <div class="entrada__demo">
+        <p>O acesso é criado pela equipe do Grupo Sabeh. Ainda não recebeu o seu? Fale com a gente pelo WhatsApp <b>(18) 99669-1107</b> ou pelo e-mail <b>imoveis@gruposabeh.com.br</b>.</p>
+        <a class="btn btn--linha" href="index.html">Voltar ao site</a>
+      </div>
+    </form>
+
+    <!-- Esqueci a senha -->
+    <form class="entrada__form form" id="form-esqueci" novalidate hidden>
+      <h2>Criar nova senha</h2>
+      <p class="vazio">Informe o seu e-mail. Enviamos um link para você criar uma nova senha.</p>
+      <label for="email-esqueci">E-mail<input id="email-esqueci" type="email" autocomplete="username" required></label>
+      <p class="erro-msg" id="erro-esqueci" role="alert" hidden></p>
+      <p class="ok-msg" id="ok-esqueci" role="status" hidden></p>
+      <button class="btn" type="submit" id="botao-esqueci">Enviar link</button>
+      <button class="link" type="button" id="ir-entrar">Voltar para entrar</button>
+    </form>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+  <script src="assets/supabase.js"></script>
+  <script>
+    (async () => {
+      const db = SABEH.db;
+      const $ = s => document.querySelector(s);
+      const mostrar = (el, texto) => { el.textContent = texto; el.hidden = !texto; };
+
+      // Já está logado? Vai direto para a área
+      const { data: { session } } = await db.auth.getSession();
+      if (session) return location.replace('area.html');
+
+      $('#ir-esqueci').addEventListener('click', () => {
+        $('#form-entrar').hidden = true; $('#form-esqueci').hidden = false;
+        $('#email-esqueci').value = $('#email').value; $('#email-esqueci').focus();
+      });
+      $('#ir-entrar').addEventListener('click', () => {
+        $('#form-esqueci').hidden = true; $('#form-entrar').hidden = false; $('#email').focus();
+      });
+
+      $('#form-entrar').addEventListener('submit', async e => {
+        e.preventDefault();
+        const email = $('#email').value.trim(), senha = $('#senha').value;
+        if (!email || !senha) return mostrar($('#erro-entrar'), 'Preencha o e-mail e a senha.');
+        const botao = $('#botao-entrar'); botao.disabled = true; botao.textContent = 'Entrando…';
+        const { error } = await db.auth.signInWithPassword({ email, password: senha });
+        botao.disabled = false; botao.textContent = 'Entrar';
+        if (error) return mostrar($('#erro-entrar'), /invalid/i.test(error.message)
+          ? 'E-mail ou senha incorretos. Se esqueceu a senha, clique em "Esqueci minha senha".'
+          : 'Não foi possível entrar agora. Tente de novo em alguns minutos.');
+        location.replace('area.html');
+      });
+
+      $('#form-esqueci').addEventListener('submit', async e => {
+        e.preventDefault();
+        const email = $('#email-esqueci').value.trim();
+        mostrar($('#erro-esqueci'), ''); mostrar($('#ok-esqueci'), '');
+        if (!email) return mostrar($('#erro-esqueci'), 'Informe o seu e-mail.');
+        const botao = $('#botao-esqueci'); botao.disabled = true;
+        const { error } = await db.auth.resetPasswordForEmail(email, {
+          redirectTo: location.origin + location.pathname.replace(/[^/]*$/, '') + 'definir-senha.html'
+        });
+        botao.disabled = false;
+        if (error) return mostrar($('#erro-esqueci'), 'Não foi possível enviar agora. Tente de novo em alguns minutos.');
+        mostrar($('#ok-esqueci'), 'Pronto. Se esse e-mail tiver acesso, o link chega em alguns minutos. Confira também a caixa de spam.');
+      });
+    })();
+  </script>
+</body>
+</html>

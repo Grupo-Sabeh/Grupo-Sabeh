@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do cliente — Grupo Sabeh</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#163840">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon-96.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/area.css">
+</head>
+<body>
+  <!-- Mostra a área do cliente ou a da administração, conforme quem entrou -->
+  <div id="app"><p class="carregando">Carregando…</p></div>
+  <dialog id="janela"><button class="janela__fechar" type="button" aria-label="Fechar" data-fechar>×</button><div class="janela" id="janela-conteudo"></div></dialog>
+  <div class="aviso" id="aviso" role="status" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+  <script src="assets/supabase.js"></script>
+  <script src="assets/area.js"></script>
+</body>
+</html>

@@ -67,11 +67,13 @@
 .painel__icone svg { width: 24px; height: 24px; }
 .painel__icone--agro { background: #F3EEE6; color: #7A5C34; }
 
-@media (max-width: 960px) {
-  .painel__segmentos ul { grid-template-columns: repeat(2, 1fr); }
+.menu a { white-space: nowrap; }
+@media (max-width: 1100px) {
+  .menu { gap: 24px; }
 }
 
-@media (max-width: 760px) {
+/* Até 960 px as abas principais vão para dentro do ☰ */
+@media (max-width: 960px) {
   .cabecalho .container > nav:not(.painel__segmentos) { display: none; }
   .painel__abas { display: block; margin-bottom: 24px; border-top: 1px solid var(--linha); }
   .painel__abas a {
@@ -85,7 +87,16 @@
     color: var(--azul-escuro);
   }
   .painel__abas a[aria-current] { font-weight: 700; }
+  .painel__segmentos ul { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
   .cabecalho .painel__grade { padding-top: 8px; padding-bottom: 24px; }
   .painel__segmentos ul { grid-template-columns: 1fr; gap: 10px; }
   .painel__segmentos a { padding: 12px 14px; }
 }
+
+/* Link da área do cliente no menu */
+.menu a.menu__area { padding: 9px 14px; border: 1px solid currentColor; }
+.menu a.menu__area:hover { background: var(--teal); border-color: var(--teal); color: var(--branco); }
+.painel__abas a.menu__area { font-weight: 700; color: var(--teal); }
