@@ -54,7 +54,8 @@
   const { data: { session } } = await db.auth.getSession();
   if (!session) return location.replace('entrar.html');
   const usuario = session.user;
-  const souAdmin = (usuario.email || '').toLowerCase() === ADMIN;
+  // A tela da administração só aparece para a conta confirmada do administrador (o banco também confere)
+  const souAdmin = (usuario.email || '').toLowerCase() === ADMIN && !!usuario.email_confirmed_at;
   db.auth.onAuthStateChange(evento => { if (evento === 'SIGNED_OUT') location.replace('entrar.html'); });
 
   const estado = { aba: 'resumo', verComo: null, filtro: 'todas', buscaCliente: '' };
@@ -169,7 +170,17 @@
     const proxima = cob.filter(c => situacao(c) === 'aberto')[0];
     const totalAtraso = atr.reduce((s, c) => s + c.valor, 0);
     let corpo = '';
-    if (estado.aba === 'resumo') {
+    if (estado.aba === 'resumo' && !meus.length && !cob.length) {
+      // Conta sem nada vinculado (por exemplo, quem acabou de se cadastrar)
+      corpo = `
+        <div class="titulo-pagina"><div><h1>Olá, ${esc(cl.nome.split(' ')[0])}</h1><p>Sua conta está pronta.</p></div></div>
+        <section class="painel"><h2>Ainda não há imóveis na sua conta</h2>
+          <p class="vazio">Se você aluga, comprou ou está negociando um imóvel com o Grupo Sabeh, fale com a nossa equipe. Assim que o imóvel for vinculado ao seu e-mail (${esc(cl.email)}), ele aparece aqui com o contrato e as contas.</p>
+          <div class="acoes" style="justify-content:flex-start;margin-top:16px">
+            <a class="btn" target="_blank" rel="noopener" href="${linkWhats(WHATSAPP, `Olá, criei minha conta na área do cliente do Grupo Sabeh com o e-mail ${cl.email}. Podem vincular o meu imóvel?`)}">Pedir pelo WhatsApp</a>
+            <a class="btn btn--linha" href="index.html#imoveis">Ver imóveis disponíveis</a>
+          </div></section>`;
+    } else if (estado.aba === 'resumo') {
       corpo = `
         <div class="titulo-pagina"><div><h1>Olá, ${esc(cl.nome.split(' ')[0])}</h1><p>Resumo dos seus imóveis com o Grupo Sabeh.</p></div></div>
         ${atr.length

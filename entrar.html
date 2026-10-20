@@ -38,9 +38,29 @@
       <button class="btn" type="submit" id="botao-entrar">Entrar</button>
       <button class="link" type="button" id="ir-esqueci">Esqueci minha senha</button>
       <div class="entrada__demo">
-        <p>O acesso é criado pela equipe do Grupo Sabeh. Ainda não recebeu o seu? Fale com a gente pelo WhatsApp <b>(18) 99669-1107</b> ou pelo e-mail <b>imoveis@gruposabeh.com.br</b>.</p>
-        <a class="btn btn--linha" href="index.html">Voltar ao site</a>
+        <p>Ainda não tem conta?</p>
+        <button class="btn btn--linha" type="button" id="ir-criar">Criar conta</button>
+        <a class="link" href="index.html">Voltar ao site</a>
       </div>
+    </form>
+
+    <!-- Criar conta -->
+    <form class="entrada__form form" id="form-criar" novalidate hidden>
+      <h2>Criar conta</h2>
+      <p class="vazio">Se você aluga, comprou ou está negociando um imóvel com o Grupo Sabeh, ele aparece na sua área assim que a equipe vincular à sua conta.</p>
+      <label for="cr-nome">Nome completo ou razão social<input id="cr-nome" autocomplete="name" required></label>
+      <div class="form__linha">
+        <label for="cr-email">E-mail<input id="cr-email" type="email" autocomplete="email" required></label>
+        <label for="cr-tel">WhatsApp<input id="cr-tel" type="tel" autocomplete="tel" placeholder="(18) 9 0000-0000"></label>
+      </div>
+      <div class="form__linha">
+        <label for="cr-senha">Senha<input id="cr-senha" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label for="cr-senha2">Repita a senha<input id="cr-senha2" type="password" autocomplete="new-password" minlength="8" required></label>
+      </div>
+      <p class="erro-msg" id="erro-criar" role="alert" hidden></p>
+      <p class="ok-msg" id="ok-criar" role="status" hidden></p>
+      <button class="btn" type="submit" id="botao-criar">Criar conta</button>
+      <button class="link" type="button" id="ir-entrar-2">Já tenho conta</button>
     </form>
 
     <!-- Esqueci a senha -->
@@ -71,8 +91,40 @@
         $('#form-entrar').hidden = true; $('#form-esqueci').hidden = false;
         $('#email-esqueci').value = $('#email').value; $('#email-esqueci').focus();
       });
-      $('#ir-entrar').addEventListener('click', () => {
-        $('#form-esqueci').hidden = true; $('#form-entrar').hidden = false; $('#email').focus();
+      const irEntrar = () => {
+        $('#form-esqueci').hidden = true; $('#form-criar').hidden = true; $('#form-entrar').hidden = false; $('#email').focus();
+      };
+      $('#ir-entrar').addEventListener('click', irEntrar);
+      $('#ir-entrar-2').addEventListener('click', irEntrar);
+      $('#ir-criar').addEventListener('click', () => {
+        $('#form-entrar').hidden = true; $('#form-criar').hidden = false;
+        $('#cr-email').value = $('#email').value; $('#cr-nome').focus();
+      });
+
+      $('#form-criar').addEventListener('submit', async e => {
+        e.preventDefault();
+        const v = s => $(s).value.trim();
+        mostrar($('#erro-criar'), ''); mostrar($('#ok-criar'), '');
+        if (!v('#cr-nome') || !v('#cr-email')) return mostrar($('#erro-criar'), 'Preencha o nome e o e-mail.');
+        if ($('#cr-senha').value.length < 8) return mostrar($('#erro-criar'), 'A senha precisa ter pelo menos 8 caracteres.');
+        if ($('#cr-senha').value !== $('#cr-senha2').value) return mostrar($('#erro-criar'), 'As duas senhas não são iguais.');
+        const botao = $('#botao-criar'); botao.disabled = true; botao.textContent = 'Criando…';
+        const { data, error } = await db.auth.signUp({
+          email: v('#cr-email'),
+          password: $('#cr-senha').value,
+          options: {
+            data: { nome: v('#cr-nome'), telefone: v('#cr-tel') },
+            emailRedirectTo: new URL('area.html', location.href).href
+          }
+        });
+        botao.disabled = false; botao.textContent = 'Criar conta';
+        if (error) return mostrar($('#erro-criar'), /weak|pwned|leaked|password/i.test(error.message)
+          ? 'Essa senha é fraca ou já apareceu em vazamentos. Escolha outra.'
+          : /rate|limit/i.test(error.message) ? 'Muitas tentativas agora. Tente de novo em alguns minutos.'
+          : 'Não foi possível criar a conta agora. Tente de novo em alguns minutos.');
+        if (data.session) return location.replace('area.html');
+        $('#form-criar').querySelectorAll('input, button[type=submit]').forEach(el => { el.disabled = true; });
+        mostrar($('#ok-criar'), `Quase pronto: enviamos um e-mail para ${v('#cr-email')}. Clique no link do e-mail para ativar a conta. Confira também a caixa de spam. Se esse e-mail já tinha conta, é só entrar ou usar "Esqueci minha senha".`);
       });
 
       $('#form-entrar').addEventListener('submit', async e => {
@@ -82,7 +134,9 @@
         const botao = $('#botao-entrar'); botao.disabled = true; botao.textContent = 'Entrando…';
         const { error } = await db.auth.signInWithPassword({ email, password: senha });
         botao.disabled = false; botao.textContent = 'Entrar';
-        if (error) return mostrar($('#erro-entrar'), /invalid/i.test(error.message)
+        if (error) return mostrar($('#erro-entrar'), /not confirmed/i.test(error.message)
+          ? 'Falta confirmar o seu e-mail. Abra o e-mail que enviamos ao criar a conta e clique no link.'
+          : /invalid/i.test(error.message)
           ? 'E-mail ou senha incorretos. Se esqueceu a senha, clique em "Esqueci minha senha".'
           : 'Não foi possível entrar agora. Tente de novo em alguns minutos.');
         location.replace('area.html');

@@ -222,3 +222,8 @@ dialog::backdrop { background: rgba(10,30,36,0.55); }
 .link { background: none; border: 0; padding: 0; color: var(--teal); text-decoration: underline; cursor: pointer; font-size: 0.85rem; justify-self: start; }
 .btn--perigo { background: var(--erro); border-color: var(--erro); }
 .btn[disabled] { opacity: 0.6; cursor: wait; }
+
+/* Elementos escondidos ficam escondidos, mesmo com display definido no estilo */
+[hidden] { display: none !important; }
+.form label { min-width: 0; }
+.form input, .form select, .form textarea { width: 100%; min-width: 0; }
