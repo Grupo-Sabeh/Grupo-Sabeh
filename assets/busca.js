@@ -271,6 +271,7 @@
 
   // ---------- Detalhes ----------
   const janela = $('#detalhe');
+  janela.tabIndex = -1;
   // Fotos do imóvel aberto e qual está na tela
   const galeria = { fotos: [], atual: 0, arrastouEm: 0 };
 
@@ -280,9 +281,14 @@
     galeria.atual = (n + total) % total;
     $('#detalhe-foto').style.backgroundImage = `url('${galeria.fotos[galeria.atual]}')`;
     $('#detalhe-contador').textContent = `${galeria.atual + 1} / ${total}`;
-    document.querySelectorAll('.detalhe__miniaturas button').forEach((b, k) => {
+    const faixa = $('.detalhe__miniaturas');
+    faixa.querySelectorAll('button').forEach((b, k) => {
       b.setAttribute('aria-current', k === galeria.atual);
-      if (k === galeria.atual) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      // Centraliza a miniatura atual rolando só a faixa (sem mexer na página nem na janela)
+      if (k === galeria.atual) {
+        const deslocamento = b.getBoundingClientRect().left - faixa.getBoundingClientRect().left;
+        faixa.scrollTo({ left: faixa.scrollLeft + deslocamento - (faixa.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' });
+      }
     });
     // Já deixa a próxima foto carregada, para a troca ser imediata
     new Image().src = galeria.fotos[(galeria.atual + 1) % total];
@@ -327,7 +333,8 @@
           </a>
         </div>
       </div>`;
-    if (!janela.open) janela.showModal();
+    // Ao abrir, o navegador põe o foco no botão de fechar e rola a página do fundo; o foco vai para a janela, sem rolar
+    if (!janela.open) { janela.showModal(); janela.focus({ preventScroll: true }); }
     if (atualizarEndereco) { try { history.replaceState(null, '', '#imovel=' + encodeURIComponent(i.codigo)); } catch (e) {} }
     if (fotos.length > 1) {
       new Image().src = fotos[1];

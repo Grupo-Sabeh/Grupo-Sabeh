@@ -728,6 +728,7 @@ h3 { font-size: 1.25rem; }
   box-shadow: 0 30px 80px rgba(10,30,36,0.35);
 }
 .detalhe::backdrop { background: rgba(10,30,36,0.6); }
+.detalhe:focus { outline: none; }
 .detalhe__fechar {
   position: absolute;
   top: 10px;
