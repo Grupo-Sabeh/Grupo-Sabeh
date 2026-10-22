@@ -743,11 +743,38 @@ h3 { font-size: 1.25rem; }
   color: var(--azul-escuro);
 }
 .detalhe__grade { display: grid; grid-template-columns: 1.1fr 1fr; }
-.detalhe__foto { aspect-ratio: auto; min-height: 100%; }
+.detalhe__foto { aspect-ratio: auto; }
 .detalhe__galeria { display: flex; flex-direction: column; min-height: 360px; }
-.detalhe__galeria .detalhe__foto { flex: 1; }
+/* Muitas miniaturas rolam dentro da faixa, sem alargar a janela */
+.detalhe__galeria, .detalhe__info { min-width: 0; }
+/* A foto ocupa o espaço acima das miniaturas, sem empurrar a faixa para fora da janela */
+.detalhe__galeria .detalhe__foto { flex: 1 1 auto; min-height: 320px; }
+/* Com foto: a imagem aparece inteira, sem cortes, sobre o fundo escuro; dá para arrastar para o lado */
+.detalhe__foto--com-foto { background-color: var(--azul-profundo); background-size: contain; background-repeat: no-repeat; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.detalhe__seta {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: rgba(255,255,255,0.88);
+  color: var(--azul-escuro);
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.detalhe__seta:hover { background: var(--branco); }
+.detalhe__seta:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.detalhe__seta--antes { left: 10px; }
+.detalhe__seta--depois { right: 10px; }
+.detalhe__contador { position: absolute; right: 10px; bottom: 10px; z-index: 2; padding: 4px 9px; background: rgba(22,56,64,0.85); color: var(--branco); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; }
 .detalhe__miniaturas { display: flex; gap: 6px; padding: 6px; background: var(--azul-profundo); overflow-x: auto; }
-.detalhe__miniaturas button { flex: none; width: 72px; height: 54px; border: 0; cursor: pointer; background-size: cover; background-position: center; }
+.detalhe__miniaturas button { flex: none; width: 72px; height: 54px; border: 0; cursor: pointer; background-size: cover; background-position: center; opacity: 0.6; transition: opacity 0.2s; }
+.detalhe__miniaturas button:hover { opacity: 0.9; }
+.detalhe__miniaturas button[aria-current="true"] { opacity: 1; box-shadow: inset 0 0 0 2px var(--branco); }
+.detalhe__miniaturas button:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
 .detalhe__info { padding: 40px 36px 36px; }
 .detalhe__info h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 6px 0 8px; padding-right: 32px; }
 .detalhe__preco { font-weight: 900; font-size: 1.6rem; margin: 18px 0; }
@@ -772,7 +799,8 @@ h3 { font-size: 1.25rem; }
   .sobre__grade, .manifesto__grade, .contato__grade, .local__grade { grid-template-columns: 1fr; }
   .imoveis__grade { grid-template-columns: repeat(2, 1fr); }
   .detalhe__grade { grid-template-columns: 1fr; }
-  .detalhe__galeria { min-height: 240px; }
+  .detalhe__galeria { min-height: 0; }
+  .detalhe__galeria .detalhe__foto { flex: none; min-height: 0; aspect-ratio: 4 / 3; }
   .manifesto__titulo { position: static; }
   .segmentos__topo { flex-direction: column; align-items: start; }
 }

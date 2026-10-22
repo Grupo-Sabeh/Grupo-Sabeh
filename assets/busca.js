@@ -271,19 +271,40 @@
 
   // ---------- Detalhes ----------
   const janela = $('#detalhe');
+  // Fotos do imóvel aberto e qual está na tela
+  const galeria = { fotos: [], atual: 0, arrastouEm: 0 };
+
+  function mostrarFoto(n) {
+    const total = galeria.fotos.length;
+    if (total < 2) return;
+    galeria.atual = (n + total) % total;
+    $('#detalhe-foto').style.backgroundImage = `url('${galeria.fotos[galeria.atual]}')`;
+    $('#detalhe-contador').textContent = `${galeria.atual + 1} / ${total}`;
+    document.querySelectorAll('.detalhe__miniaturas button').forEach((b, k) => {
+      b.setAttribute('aria-current', k === galeria.atual);
+      if (k === galeria.atual) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
+    // Já deixa a próxima foto carregada, para a troca ser imediata
+    new Image().src = galeria.fotos[(galeria.atual + 1) % total];
+  }
 
   function abrirDetalhe(codigo, atualizarEndereco = true) {
     const i = IMOVEIS.find(x => x.codigo === codigo);
     if (!i) return;
     const fotos = i.fotos || [];
+    Object.assign(galeria, { fotos, atual: 0 });
     const specs = caracteristicas(i).map(([k, v]) => `<li><small>${k}</small>${esc(v)}</li>`).join('');
     $('#detalhe-conteudo').innerHTML = `
       <div class="detalhe__galeria">
-        <div class="detalhe__foto imovel__foto--${esc(i.categoria)}" id="detalhe-foto"${fotos[0] ? ` style="background-image:url('${esc(fotos[0])}')"` : ''}>
+        <div class="detalhe__foto imovel__foto--${esc(i.categoria)}${fotos[0] ? ' detalhe__foto--com-foto' : ''}" id="detalhe-foto"${fotos[0] ? ` style="background-image:url('${esc(fotos[0])}')"` : ''}>
           ${fotos[0] ? '' : icone(i.categoria)}
+          ${fotos.length > 1 ? `
+          <button type="button" class="detalhe__seta detalhe__seta--antes" data-passar="-1" aria-label="Foto anterior">‹</button>
+          <button type="button" class="detalhe__seta detalhe__seta--depois" data-passar="1" aria-label="Próxima foto">›</button>
+          <span class="detalhe__contador" id="detalhe-contador" aria-live="polite">1 / ${fotos.length}</span>` : ''}
         </div>
         ${fotos.length > 1 ? `<div class="detalhe__miniaturas">${fotos.map((f, n) =>
-          `<button type="button" data-foto="${esc(f)}" style="background-image:url('${esc(f)}')" aria-label="Foto ${n + 1}"></button>`).join('')}</div>` : ''}
+          `<button type="button" data-foto-n="${n}" style="background-image:url('${esc(f)}')" aria-label="Foto ${n + 1}" aria-current="${n === 0}"></button>`).join('')}</div>` : ''}
       </div>
       <div class="detalhe__info">
         <p class="imovel__tipo">${rotuloFinalidade(i)} · ${esc(i.tipo)}${i.exemplo ? ' · <b>Exemplo</b>' : ''}</p>
@@ -308,6 +329,23 @@
       </div>`;
     if (!janela.open) janela.showModal();
     if (atualizarEndereco) { try { history.replaceState(null, '', '#imovel=' + encodeURIComponent(i.codigo)); } catch (e) {} }
+    if (fotos.length > 1) {
+      new Image().src = fotos[1];
+      // Arrastar a foto para o lado (dedo ou mouse) passa para a próxima ou a anterior
+      const foto = $('#detalhe-foto');
+      let inicio = null;
+      foto.addEventListener('pointerdown', e => { inicio = { x: e.clientX, y: e.clientY }; });
+      foto.addEventListener('pointercancel', () => { inicio = null; });
+      foto.addEventListener('pointerup', e => {
+        if (!inicio) return;
+        const dx = e.clientX - inicio.x, dy = e.clientY - inicio.y;
+        inicio = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+          galeria.arrastouEm = Date.now();
+          mostrarFoto(galeria.atual + (dx < 0 ? 1 : -1));
+        }
+      });
+    }
   }
 
   function fecharDetalhe() {
@@ -318,9 +356,18 @@
     if (location.hash.startsWith('#imovel=')) { try { history.replaceState(null, '', location.pathname + location.search + '#imoveis'); } catch (e) {} }
   });
   janela.addEventListener('click', e => {
+    // Um arrasto que termina fora da janela não deve fechá-la
+    if (e.target === janela && Date.now() - galeria.arrastouEm < 400) return;
     if (e.target === janela || e.target.closest('.detalhe__fechar')) fecharDetalhe();
-    const mini = e.target.closest('[data-foto]');
-    if (mini) $('#detalhe-foto').style.backgroundImage = `url('${mini.dataset.foto}')`;
+    const passar = e.target.closest('[data-passar]');
+    if (passar) mostrarFoto(galeria.atual + Number(passar.dataset.passar));
+    const mini = e.target.closest('[data-foto-n]');
+    if (mini) mostrarFoto(Number(mini.dataset.fotoN));
+  });
+  // Setas do teclado passam as fotos
+  janela.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); mostrarFoto(galeria.atual + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); mostrarFoto(galeria.atual - 1); }
   });
 
   // ---------- Eventos ----------
